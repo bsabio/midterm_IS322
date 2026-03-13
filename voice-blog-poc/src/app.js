@@ -6,6 +6,7 @@
 import { AudioRecorder } from "./audioRecorder.js";
 import { transcribeAudioWithWhisper } from "./transcriptionService.js";
 import { formatTranscriptToMarkdownBlog } from "./blogFormatterService.js";
+import { USE_OLLAMA_FOR_BLOG } from "./config.js";
 
 const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
@@ -78,7 +79,11 @@ formatBtn.addEventListener("click", async () => {
   try {
     const transcript = transcriptEl.value;
     formatBtn.disabled = true;
-    log("Formatting transcript into strict Markdown blog...");
+    log(
+      `Formatting transcript into strict Markdown blog using ${
+        USE_OLLAMA_FOR_BLOG ? "Ollama" : "OpenAI"
+      }...`
+    );
 
     const markdown = await formatTranscriptToMarkdownBlog(transcript);
     markdownEl.value = markdown;

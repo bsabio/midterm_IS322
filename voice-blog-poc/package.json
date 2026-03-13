@@ -1,0 +1,14 @@
+{
+  "name": "voice-blog-poc",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node tools/multimodal-feedback/static-server.js",
+    "feedback:run": "node tools/multimodal-feedback/run-feedback-loop.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "playwright": "^1.52.0"
+  }
+}

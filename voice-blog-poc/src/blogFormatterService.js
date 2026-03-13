@@ -3,7 +3,13 @@
  * Purpose: Convert raw transcript text into a strict Markdown blog post using an LLM.
  */
 
-import { OPENAI_API_KEY, OPENAI_BASE_URL, BLOG_MODEL } from "./config.js";
+import {
+  OPENAI_API_KEY,
+  OPENAI_BASE_URL,
+  BLOG_MODEL,
+  USE_OLLAMA_FOR_BLOG,
+} from "./config.js";
+import { generateBlogWithOllama } from "./ollamaClient.js";
 
 const STRICT_MARKDOWN_SYSTEM_PROMPT = [
   "You are a technical editor.",
@@ -29,6 +35,10 @@ const STRICT_MARKDOWN_SYSTEM_PROMPT = [
 export async function formatTranscriptToMarkdownBlog(transcript) {
   if (!transcript || !transcript.trim()) {
     throw new Error("Transcript is empty.");
+  }
+
+  if (USE_OLLAMA_FOR_BLOG) {
+    return processWithOllama(transcript);
   }
 
   if (!OPENAI_API_KEY || OPENAI_API_KEY.includes("YOUR_OPENAI_API_KEY")) {
@@ -61,4 +71,14 @@ export async function formatTranscriptToMarkdownBlog(transcript) {
 
   const data = await response.json();
   return data.choices?.[0]?.message?.content?.trim() || "";
+}
+
+// Example function to process transcript with local Ollama
+export async function processWithOllama(transcript) {
+  return generateBlogWithOllama({
+    transcript,
+    systemPrompt:
+      "You are an Expert Web Developer. Convert this voice transcript into a professional Markdown blog post.",
+    outputFormat: "markdown",
+  });
 }
