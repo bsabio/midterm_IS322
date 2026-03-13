@@ -26,7 +26,7 @@ Example:
 
 ## Environment Variables
 
-Copy `.env.example` and set:
+Create a `.env` file in this folder and set:
 - `GITHUB_TOKEN`
 - `GITHUB_OWNER`
 - `GITHUB_REPO`

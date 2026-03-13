@@ -12,7 +12,6 @@ CPU-friendly local CLI toolkit for AI agents, designed with strict separation of
 
 ```text
 .
-├── .env.example
 ├── .gitignore
 ├── README.md
 ├── src
@@ -57,7 +56,7 @@ CPU-friendly local CLI toolkit for AI agents, designed with strict separation of
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-cp .env.example .env
+# create and populate .env manually
 python -m src.agentic_cli.interfaces.cli.main init-help
 python -m src.agentic_cli.interfaces.cli.main add --title "Clean Architecture" --source "https://blog.cleancoder.com"
 python -m src.agentic_cli.interfaces.cli.main list
