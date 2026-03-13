@@ -1,6 +1,32 @@
+# Environment variables and API keys
 .env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Sensitive files
+*secret*
+*key*
+*token*
+*credentials*
+.aws/
+.ssh/
+
+# Python
 .venv/
 __pycache__/
 .pytest_cache/
 *.pyc
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build artifacts
+dist/
+build/
+
+# Project-specific
 resources.json
