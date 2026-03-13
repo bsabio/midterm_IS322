@@ -1,0 +1,57 @@
+name: Rebuild Site On New Posts
+
+on:
+  push:
+    paths:
+      - "posts/**/*.md"
+  workflow_dispatch:
+
+jobs:
+  detect-and-rebuild:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect newly added markdown files in posts
+        id: detect
+        run: |
+          set -e
+          BEFORE_SHA="${{ github.event.before }}"
+          if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            ADDED_COUNT=$(git ls-files 'posts/**/*.md' | wc -l)
+          else
+            ADDED_COUNT=$(git diff --name-status "$BEFORE_SHA" "${{ github.sha }}" | awk '$1 == "A" && $2 ~ /^posts\/.*\.md$/ {count++} END {print count+0}')
+          fi
+
+          echo "added_count=$ADDED_COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$ADDED_COUNT" -gt 0 ]; then
+            echo "has_new_posts=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_new_posts=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node
+        if: steps.detect.outputs.has_new_posts == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        if: steps.detect.outputs.has_new_posts == 'true'
+        run: npm ci
+
+      - name: Build site
+        if: steps.detect.outputs.has_new_posts == 'true'
+        run: npm run build
+
+      - name: Deploy site
+        if: steps.detect.outputs.has_new_posts == 'true'
+        run: npm run deploy
+
+      - name: Skip summary
+        if: steps.detect.outputs.has_new_posts != 'true'
+        run: echo "No newly added .md files under posts/. Rebuild skipped."

@@ -77,3 +77,28 @@ python -m src.agentic_cli.interfaces.cli.main search "architecture"
 - Token-based in-memory search index rebuilt on demand.
 - No heavy ML frameworks or GPU assumptions.
 - Configurable result limits and token cutoffs via `.env`.
+
+## Autonomous Orchestrator Toolkit
+
+This repository now includes a Clean Architecture CLI orchestration framework that uses local Ollama as the primary reasoning engine.
+
+Location:
+
+- `src/agent_orchestrator/`
+
+Architecture boundaries:
+
+- Core Logic: `src/agent_orchestrator/core/content_formatter.py`
+- Infrastructure (external I/O):
+	- `src/agent_orchestrator/infrastructure/ollama_reasoner.py`
+	- `src/agent_orchestrator/infrastructure/github_publisher.py`
+- Local context docs: `research/`
+- Self-onboarding help use case: `src/agent_orchestrator/application/use_cases/onboarding_help.py`
+
+Run examples:
+
+```bash
+python -m src.agent_orchestrator.interfaces.cli.main help-agent
+python -m src.agent_orchestrator.interfaces.cli.main research-add --title "design note" --content "glassmorphism and bauhaus constraints"
+python -m src.agent_orchestrator.interfaces.cli.main run --instruction "Draft a post about local AI workflows"
+```
