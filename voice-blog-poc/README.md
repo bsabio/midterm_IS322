@@ -47,6 +47,30 @@ Then open:
 
 `http://127.0.0.1:3000`
 
+## Google Login Required
+
+This app now requires Google sign-in before users can access the UI and protected APIs.
+
+Add these environment variables to `.env`:
+
+- `SESSION_SECRET` (long random string)
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_CALLBACK_URL` (for local dev: `http://127.0.0.1:3000/auth/google/callback`)
+
+Google Cloud Console setup:
+
+1. Create OAuth 2.0 Client ID (Web application).
+2. Add Authorized redirect URI matching `GOOGLE_CALLBACK_URL`.
+3. Add Authorized JavaScript origins for your local host if needed.
+
+Runtime behavior:
+
+- Unauthenticated users are redirected to `/login`.
+- API routes require auth except `GET /api/health` and `GET /api/auth/me`.
+- Sign-in route: `/auth/google`
+- Callback route: `/auth/google/callback`
+
 Optional static-only mode (no backend APIs):
 
 ```bash

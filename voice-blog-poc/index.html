@@ -7,16 +7,39 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <main class="container">
-    <section class="panel" aria-hidden="true">
-      <h2>Design Motif</h2>
-      <p class="muted">Bauhaus geometry with modern glass layering for a premium UI baseline.</p>
+  <div id="authBadge" class="auth-badge" aria-live="polite">
+    <button id="authMenuToggle" class="auth-menu-toggle" type="button" aria-haspopup="menu" aria-expanded="false">
+      Signed in as ...
+    </button>
+    <div id="authMenu" class="auth-menu" role="menu" hidden>
+      <a class="auth-menu-item" href="/community" role="menuitem">Community posts</a>
+      <button id="switchUserBtn" class="auth-menu-item" type="button" role="menuitem">Switch user</button>
+      <button id="signOutBtn" class="auth-menu-item" type="button" role="menuitem">Sign out</button>
+    </div>
+  </div>
+  <main id="pageRoot" class="container">
+    <section id="siteCanvas" data-slot="canvas" class="site-canvas layout-mode-split">
+      <h1 id="pageTitle">Swiss International Style Transformation</h1>
+      <p id="pageSubtitle" class="muted">Revamping the page with a modern design approach.</p>
+
+      <section id="transformPanel" class="flow-sections" aria-label="Live site content">
+        <div id="transformSections" class="grid-sections">
+          <article class="transform-card layout-hero hero-expanded">
+            <h3>Embrace Swiss Design</h3>
+            <p>Transform your visuals with clarity and precision.</p>
+            <a class="hero-cta" href="/repository">Read More</a>
+          </article>
+          <article class="transform-card layout-text">
+            <h3>Learn More</h3>
+            <p>This repository is a voice-to-blog and site-transformation project. It includes audio capture, Whisper transcription, transcript-to-markdown generation, JSON-driven layout transforms, local account and Google sign-in, and optional publishing workflows.</p>
+            <a class="hero-cta" href="/repository">Learn More</a>
+            <a class="hero-cta" href="/community">Community Posts</a>
+          </article>
+        </div>
+      </section>
     </section>
 
-    <h1 id="pageTitle">Serverless Voice-to-Blog POC</h1>
-    <p id="pageSubtitle" class="muted">Client-only prototype using MediaRecorder + OpenAI APIs.</p>
-
-    <section class="panel">
+    <section id="capturePanel" data-slot="capture" class="panel">
       <h2>1) Audio Capture</h2>
       <div class="row">
         <button id="startBtn">Start Recording</button>
@@ -26,7 +49,7 @@
       <p id="recordingStatus" class="muted">Idle</p>
     </section>
 
-    <section class="panel">
+    <section id="transcriptPanel" data-slot="transcript" class="panel">
       <h2>2) Transcript</h2>
       <div class="row">
         <button id="transcribeBtn" disabled>Transcribe Audio (Whisper)</button>
@@ -37,40 +60,15 @@
       <p id="transformStatus" class="muted"></p>
     </section>
 
-    <section class="panel" id="transformPanel">
-      <h2>Live Site Transform</h2>
-      <div id="transformSections" class="grid-sections"></div>
-    </section>
-
-    <section class="panel">
+    <section id="markdownPanel" data-slot="markdown" class="panel">
       <h2>3) Markdown Blog</h2>
       <div class="row">
         <button id="formatBtn" disabled>Generate Strict Markdown Blog</button>
       </div>
       <textarea id="markdownBlog" rows="14" placeholder="Markdown blog post appears here..."></textarea>
+      <p id="communityPostStatus" class="muted"></p>
     </section>
 
-    <section class="panel">
-      <h2>4) Prompt Workflow via Backend</h2>
-      <p class="muted">Type a prompt, generate markdown through Ollama, and optionally publish to GitHub.</p>
-      <textarea id="promptInput" rows="5" placeholder="Example: Draft a post about what I learned building a local voice-to-blog pipeline."></textarea>
-      <div class="row">
-        <input id="publishPath" type="text" placeholder="posts/2026-03-13-my-post.md" />
-        <label class="inline-check">
-          <input id="publishToggle" type="checkbox" />
-          Publish to GitHub
-        </label>
-      </div>
-      <div class="row">
-        <button id="workflowBtn">Run Prompt Workflow</button>
-      </div>
-      <p id="publishStatus" class="muted"></p>
-    </section>
-
-    <section class="panel">
-      <h2>Logs</h2>
-      <pre id="logs" class="logs"></pre>
-    </section>
   </main>
 
   <script type="module" src="./src/app.js"></script>

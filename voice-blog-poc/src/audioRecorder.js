@@ -9,6 +9,7 @@ export class AudioRecorder {
     this.stream = null;
     this.chunks = [];
     this.isRecording = false;
+    this.mimeType = "";
   }
 
   /**
@@ -18,8 +19,39 @@ export class AudioRecorder {
   async start() {
     if (this.isRecording) return;
 
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    this.mediaRecorder = new MediaRecorder(this.stream);
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error("Microphone access is unavailable in this browser or context.");
+    }
+
+    const preferredMimeTypes = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/ogg;codecs=opus",
+      "audio/mp4",
+    ];
+    const supportedMimeType = preferredMimeTypes.find(
+      (type) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type)
+    );
+
+    const recorderOptions = supportedMimeType ? { mimeType: supportedMimeType } : undefined;
+
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+    } catch (error) {
+      if (error?.name === "NotAllowedError") {
+        throw new Error("Microphone permission is blocked. Please allow mic access and try again.");
+      }
+      throw error;
+    }
+
+    this.mediaRecorder = new MediaRecorder(this.stream, recorderOptions);
+    this.mimeType = this.mediaRecorder.mimeType || supportedMimeType || "audio/webm";
     this.chunks = [];
 
     this.mediaRecorder.addEventListener("dataavailable", (event) => {
@@ -28,7 +60,7 @@ export class AudioRecorder {
       }
     });
 
-    this.mediaRecorder.start();
+    this.mediaRecorder.start(250);
     this.isRecording = true;
   }
 
@@ -47,10 +79,11 @@ export class AudioRecorder {
       recorder.addEventListener(
         "stop",
         () => {
-          resolve(new Blob(this.chunks, { type: "audio/webm" }));
+          resolve(new Blob(this.chunks, { type: this.mimeType || "audio/webm" }));
         },
         { once: true }
       );
+      recorder.requestData();
       recorder.stop();
     });
 

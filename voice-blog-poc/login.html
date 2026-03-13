@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In | Voice-to-Blog</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="panel login-card">
+    <h1>Sign in to continue</h1>
+    <p class="muted login-subtitle">Create an account with your email and password, or use Google sign-in.</p>
+
+    <form id="authForm" class="login-form">
+      <label class="login-label">
+        Email
+        <input id="email" class="login-input" type="email" autocomplete="email" required />
+      </label>
+      <label class="login-label">
+        Password
+        <input id="password" class="login-input" type="password" autocomplete="current-password" minlength="8" required />
+      </label>
+      <div class="row login-actions">
+        <button id="createBtn" type="button">Create account</button>
+        <button id="loginBtn" type="button">Sign in</button>
+      </div>
+      <p id="authStatus" class="muted login-status" aria-live="polite"></p>
+    </form>
+
+    <hr class="login-divider" />
+
+    <a class="login-google-btn" href="/auth/google">Continue with Google</a>
+    </section>
+  </main>
+
+  <script>
+    const emailEl = document.getElementById("email");
+    const passwordEl = document.getElementById("password");
+    const createBtn = document.getElementById("createBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const authStatusEl = document.getElementById("authStatus");
+
+    function setStatus(message) {
+      authStatusEl.textContent = message;
+    }
+
+    async function submitAuth(endpoint) {
+      const email = String(emailEl.value || "").trim();
+      const password = String(passwordEl.value || "");
+
+      if (!email || !password) {
+        setStatus("Enter both email and password.");
+        return;
+      }
+
+      setStatus("Signing in...");
+      createBtn.disabled = true;
+      loginBtn.disabled = true;
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || `Request failed (${response.status})`);
+        }
+
+        setStatus("Success. Redirecting...");
+        window.location.href = "/";
+      } catch (error) {
+        setStatus(error.message || "Authentication failed.");
+      } finally {
+        createBtn.disabled = false;
+        loginBtn.disabled = false;
+      }
+    }
+
+    createBtn.addEventListener("click", () => {
+      submitAuth("/auth/register");
+    });
+
+    loginBtn.addEventListener("click", () => {
+      submitAuth("/auth/login");
+    });
+  </script>
+</body>
+</html>
