@@ -4,7 +4,8 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 
 const ROOT = process.cwd();
-const PORT = Number(process.env.PORT || 4173);
+const DEFAULT_PORT = Number(process.env.PORT || 4173);
+const MAX_PORT_ATTEMPTS = 20;
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -23,7 +24,8 @@ function sanitize(urlPath) {
   return normalized === "/" ? "/index.html" : normalized;
 }
 
-const server = http.createServer(async (req, res) => {
+function requestHandler(req, res) {
+  (async () => {
   try {
     const relPath = sanitize(req.url || "/");
     const fullPath = path.join(ROOT, relPath);
@@ -42,8 +44,27 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Internal server error");
   }
-});
+  })();
+}
 
-server.listen(PORT, "127.0.0.1", () => {
-  process.stdout.write(`Static server running at http://127.0.0.1:${PORT}\n`);
-});
+function listenOnAvailablePort(startPort, attempt = 0) {
+  const port = startPort + attempt;
+  const server = http.createServer(requestHandler);
+
+  server.on("error", (err) => {
+    if (err.code === "EADDRINUSE" && attempt < MAX_PORT_ATTEMPTS) {
+      process.stderr.write(`Port ${port} is in use, trying ${port + 1}...\n`);
+      listenOnAvailablePort(startPort, attempt + 1);
+      return;
+    }
+
+    process.stderr.write(`Failed to start static server: ${err.message}\n`);
+    process.exitCode = 1;
+  });
+
+  server.listen(port, "127.0.0.1", () => {
+    process.stdout.write(`Static server running at http://127.0.0.1:${port}\n`);
+  });
+}
+
+listenOnAvailablePort(DEFAULT_PORT);

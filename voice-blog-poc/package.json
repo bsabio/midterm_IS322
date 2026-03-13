@@ -4,11 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
     "serve": "node tools/multimodal-feedback/static-server.js",
     "feedback:run": "node tools/multimodal-feedback/run-feedback-loop.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
+    "express": "^4.22.1",
+    "multer": "^1.4.5-lts.1",
     "playwright": "^1.52.0"
   }
 }

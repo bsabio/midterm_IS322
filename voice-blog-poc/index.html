@@ -13,8 +13,8 @@
       <p class="muted">Bauhaus geometry with modern glass layering for a premium UI baseline.</p>
     </section>
 
-    <h1>Serverless Voice-to-Blog POC</h1>
-    <p class="muted">Client-only prototype using MediaRecorder + OpenAI APIs.</p>
+    <h1 id="pageTitle">Serverless Voice-to-Blog POC</h1>
+    <p id="pageSubtitle" class="muted">Client-only prototype using MediaRecorder + OpenAI APIs.</p>
 
     <section class="panel">
       <h2>1) Audio Capture</h2>
@@ -30,8 +30,15 @@
       <h2>2) Transcript</h2>
       <div class="row">
         <button id="transcribeBtn" disabled>Transcribe Audio (Whisper)</button>
+        <button id="transformBtn" disabled>Transform Site From Transcript</button>
       </div>
       <textarea id="transcript" rows="8" placeholder="Transcript appears here..."></textarea>
+      <p id="transformStatus" class="muted"></p>
+    </section>
+
+    <section class="panel" id="transformPanel">
+      <h2>Live Site Transform</h2>
+      <div id="transformSections" class="grid-sections"></div>
     </section>
 
     <section class="panel">
@@ -40,6 +47,23 @@
         <button id="formatBtn" disabled>Generate Strict Markdown Blog</button>
       </div>
       <textarea id="markdownBlog" rows="14" placeholder="Markdown blog post appears here..."></textarea>
+    </section>
+
+    <section class="panel">
+      <h2>4) Prompt Workflow via Backend</h2>
+      <p class="muted">Type a prompt, generate markdown through Ollama, and optionally publish to GitHub.</p>
+      <textarea id="promptInput" rows="5" placeholder="Example: Draft a post about what I learned building a local voice-to-blog pipeline."></textarea>
+      <div class="row">
+        <input id="publishPath" type="text" placeholder="posts/2026-03-13-my-post.md" />
+        <label class="inline-check">
+          <input id="publishToggle" type="checkbox" />
+          Publish to GitHub
+        </label>
+      </div>
+      <div class="row">
+        <button id="workflowBtn">Run Prompt Workflow</button>
+      </div>
+      <p id="publishStatus" class="muted"></p>
     </section>
 
     <section class="panel">

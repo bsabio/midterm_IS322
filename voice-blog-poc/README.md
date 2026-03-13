@@ -24,20 +24,36 @@ This proof-of-concept records voice in the browser, transcribes it with Whisper,
 
 ## Setup
 
-1. Open `src/config.js` and set:
-   - `OPENAI_API_KEY`
-2. Serve the folder from a static web server.
+1. Create a `.env` file in this folder.
 
-Example with Python:
+2. Configure `.env` values:
+  - `OPENAI_API_KEY` for backend transcription endpoint (`/api/transcribe`)
+  - `OLLAMA_URL` and `OLLAMA_MODEL` for backend formatting/workflow
+  - `GITHUB_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO` for backend publishing endpoints
+
+3. Install dependencies:
 
 ```bash
-cd voice-blog-poc
-python3 -m http.server 8080
+npm install
+```
+
+4. Start the backend server (also serves frontend):
+
+```bash
+npm run dev
 ```
 
 Then open:
 
-`http://localhost:8080`
+`http://127.0.0.1:3000`
+
+Optional static-only mode (no backend APIs):
+
+```bash
+npm run serve
+```
+
+This serves at `http://127.0.0.1:4173` (or next available port).
 
 ## Flow
 
@@ -45,6 +61,56 @@ Then open:
 2. Click **Stop Recording**.
 3. Click **Transcribe Audio (Whisper)**.
 4. Click **Generate Strict Markdown Blog**.
+
+## Prompt Workflow From Frontend
+
+The page now includes **Prompt Workflow via Backend**:
+
+1. Enter a prompt in the prompt box.
+2. Optional: check **Publish to GitHub** and provide a repo path like `posts/2026-03-13-note.md`.
+3. Click **Run Prompt Workflow**.
+4. The app calls `POST /api/workflow` and updates:
+  - Markdown output box
+  - publish status text with GitHub link when available
+
+## Transcript-to-Site Transform
+
+You can now transform the page directly from transcript text:
+
+1. Record and transcribe audio.
+2. Click **Transform Site From Transcript**.
+3. The app calls `POST /api/transform`.
+4. Returned JSON updates:
+  - page title/subtitle
+  - CSS theme variables
+  - live transform section cards
+
+## Backend API Endpoints
+
+- `GET /api/health`
+- `POST /api/transcribe` (multipart field: `audio`)
+- `POST /api/format` (`{ transcript, systemPrompt? }`)
+- `POST /api/publish` (`{ path, markdown, sha?, message? }`)
+- `POST /api/workflow` (`{ prompt, publish, publishPath?, sha? }`)
+- `POST /api/transform` (`{ transcript }`)
+
+## Deploy on Vercel (Keep Transform Working)
+
+This project includes serverless API route support via `api/transform.js` and `vercel.json`.
+
+On Vercel, set these environment variables in Project Settings:
+
+- `OPENAI_API_KEY`
+- `OPENAI_BASE_URL` (optional, default `https://api.openai.com/v1`)
+- `OPENAI_CHAT_MODEL` (optional, default `gpt-4o-mini`)
+- `TRANSFORM_PROVIDER=openai` (recommended for Vercel)
+
+Optional local fallback variables:
+
+- `OLLAMA_URL`
+- `OLLAMA_MODEL`
+
+Note: Vercel cannot call your local Ollama instance. Use OpenAI in production by setting `TRANSFORM_PROVIDER=openai`.
 
 ## Important Security Note
 
@@ -137,11 +203,7 @@ Capabilities:
 npm install
 ```
 
-2. Create local environment file:
-
-```bash
-cp .env.example .env
-```
+2. Ensure a local `.env` file exists in this folder.
 
 3. Set your Gemini API key in `.env`:
 

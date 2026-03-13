@@ -129,6 +129,15 @@ audio,
   width: 100%;
 }
 
+input[type="text"] {
+  width: 100%;
+  border: 1px solid rgba(90, 98, 122, 0.24);
+  border-radius: var(--radius-md);
+  padding: 11px;
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--text);
+}
+
 textarea,
 .logs {
   border: 1px solid rgba(90, 98, 122, 0.24);
@@ -145,6 +154,37 @@ textarea,
 .logs {
   min-height: 90px;
   white-space: pre-wrap;
+}
+
+.grid-sections {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.transform-card {
+  border: 1px solid rgba(90, 98, 122, 0.22);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.65);
+  padding: 12px;
+}
+
+.transform-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+}
+
+.transform-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: 600;
+  color: var(--muted);
 }
 
 audio {
