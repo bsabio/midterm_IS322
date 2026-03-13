@@ -12,6 +12,7 @@ const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 const transcribeBtn = document.getElementById("transcribeBtn");
 const transformBtn = document.getElementById("transformBtn");
+const persistBtn = document.getElementById("persistBtn");
 const formatBtn = document.getElementById("formatBtn");
 const playback = document.getElementById("playback");
 const transcriptEl = document.getElementById("transcript");
@@ -27,9 +28,11 @@ const publishPathEl = document.getElementById("publishPath");
 const publishToggleEl = document.getElementById("publishToggle");
 const workflowBtn = document.getElementById("workflowBtn");
 const publishStatusEl = document.getElementById("publishStatus");
+const TRANSFORM_STORAGE_KEY = "voiceBlog.siteTransform.v1";
 
 const recorder = new AudioRecorder();
 let currentAudioBlob = null;
+let latestTransform = null;
 
 function log(message) {
   const time = new Date().toLocaleTimeString();
@@ -99,6 +102,35 @@ function applySiteTransform(transform) {
     card.append(heading, body);
     transformSectionsEl.appendChild(card);
   }
+
+  latestTransform = transform;
+  if (persistBtn) {
+    persistBtn.disabled = false;
+  }
+}
+
+function persistTransform(transform) {
+  try {
+    localStorage.setItem(TRANSFORM_STORAGE_KEY, JSON.stringify(transform));
+  } catch {
+    log("Could not save transform to local storage.");
+  }
+}
+
+function restoreTransformFromStorage() {
+  try {
+    const raw = localStorage.getItem(TRANSFORM_STORAGE_KEY);
+    if (!raw) {
+      return;
+    }
+
+    const savedTransform = JSON.parse(raw);
+    applySiteTransform(savedTransform);
+    transformStatusEl.textContent = "Restored saved transform from this browser.";
+    log("Restored saved site transform from local storage.");
+  } catch {
+    transformStatusEl.textContent = "Could not restore saved transform.";
+  }
 }
 
 async function tryBackendTransform(transcript) {
@@ -111,6 +143,21 @@ async function tryBackendTransform(transcript) {
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(payload.error || `Transform failed: ${response.status}`);
+  }
+
+  return payload;
+}
+
+async function persistTransformToSource(transform) {
+  const response = await fetch("/api/transform/apply", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ transform }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `Persist failed: ${response.status}`);
   }
 
   return payload;
@@ -220,6 +267,7 @@ transformBtn.addEventListener("click", async () => {
 
     const result = await tryBackendTransform(transcript);
     applySiteTransform(result.transform);
+    persistTransform(result.transform);
     transformStatusEl.textContent = `Applied transform using ${result.provider}.`;
     log(`Site transform applied using ${result.provider}.`);
   } catch (error) {
@@ -229,6 +277,29 @@ transformBtn.addEventListener("click", async () => {
     transformBtn.disabled = false;
   }
 });
+
+if (persistBtn) {
+  persistBtn.addEventListener("click", async () => {
+    try {
+      if (!latestTransform) {
+        throw new Error("No transform available yet. Run transform first.");
+      }
+
+      persistBtn.disabled = true;
+      transformStatusEl.textContent = "Persisting transform to source files...";
+      log("Persisting current transform into source files...");
+
+      const payload = await persistTransformToSource(latestTransform);
+      transformStatusEl.textContent = payload.message || "Transform persisted to source files.";
+      log(payload.message || "Transform persisted to source files.");
+    } catch (error) {
+      transformStatusEl.textContent = `Error: ${error.message}`;
+      log(`Persist error: ${error.message}`);
+    } finally {
+      persistBtn.disabled = false;
+    }
+  });
+}
 
 workflowBtn.addEventListener("click", async () => {
   try {
@@ -280,3 +351,5 @@ workflowBtn.addEventListener("click", async () => {
     workflowBtn.disabled = false;
   }
 });
+
+restoreTransformFromStorage();

@@ -13,8 +13,8 @@ const ALLOWED_THEME_KEYS = new Set([
 
 const TRANSFORM_SCHEMA_EXAMPLE = {
   page: {
-    title: "Local AI Workflow Notes",
-    subtitle: "A compact recap generated from voice input.",
+    title: "Transcript-Derived Page Title",
+    subtitle: "One sentence summary derived from transcript content.",
   },
   theme: {
     "--bg-a": "#f6efe7",
@@ -38,7 +38,74 @@ const TRANSFORM_PROMPT = [
   "- Keep values concise.",
   "- panels must contain between 2 and 4 items.",
   "- theme keys must only use the listed CSS vars.",
+  "- Do not copy literal values from the schema example.",
+  "- Generate title and subtitle directly from the transcript meaning.",
 ].join("\n");
+
+function createHeuristicTransformFromTranscript(transcript) {
+  const normalized = String(transcript || "").replace(/\s+/g, " ").trim();
+  const words = normalized.split(" ").filter(Boolean);
+
+  const titleSeed = words.slice(0, 8).join(" ");
+  const title = titleSeed ? `Voice Update: ${titleSeed}` : "Voice-Driven Site Update";
+
+  const subtitle = words.length > 10
+    ? words.slice(0, 18).join(" ")
+    : "Transcript converted into live page content.";
+
+  return {
+    page: {
+      title,
+      subtitle,
+    },
+    theme: {
+      "--bg-a": "#f6efe7",
+      "--bg-b": "#e4edf7",
+      "--accent-primary": "#c5483f",
+      "--accent-secondary": "#1b3a6b",
+      "--accent-highlight": "#e3ad31",
+    },
+    panels: [
+      {
+        heading: "Transcript Summary",
+        body: normalized || "No transcript content available.",
+      },
+      {
+        heading: "Next Step",
+        body: "Refine the spoken prompt with exact layout and wording requirements for more precise page updates.",
+      },
+    ],
+  };
+}
+
+function enrichTransformWithTranscript(transform, transcript) {
+  const heuristic = createHeuristicTransformFromTranscript(transcript);
+  const title = String(transform?.page?.title || "").trim();
+  const subtitle = String(transform?.page?.subtitle || "").trim();
+  const looksLikePlaceholder =
+    !title ||
+    title === "Transcript-Derived Page Title" ||
+    title === "Local AI Workflow Notes" ||
+    !subtitle ||
+    subtitle === "One sentence summary derived from transcript content." ||
+    subtitle === "A compact recap generated from voice input.";
+
+  if (!looksLikePlaceholder) {
+    return transform;
+  }
+
+  return {
+    ...transform,
+    page: {
+      title: heuristic.page.title,
+      subtitle: heuristic.page.subtitle,
+    },
+    panels:
+      Array.isArray(transform?.panels) && transform.panels.length > 0
+        ? transform.panels
+        : heuristic.panels,
+  };
+}
 
 function stripCodeFences(value) {
   const text = String(value || "").trim();
@@ -124,7 +191,8 @@ async function generateWithOpenAI(transcript) {
 
   const data = await response.json();
   const content = data?.choices?.[0]?.message?.content;
-  return normalizeTransformShape(safeJsonParse(content));
+  const normalized = normalizeTransformShape(safeJsonParse(content));
+  return enrichTransformWithTranscript(normalized, transcript);
 }
 
 async function generateWithOllama(transcript) {
@@ -145,7 +213,8 @@ async function generateWithOllama(transcript) {
   }
 
   const data = await response.json();
-  return normalizeTransformShape(safeJsonParse(data?.response || ""));
+  const normalized = normalizeTransformShape(safeJsonParse(data?.response || ""));
+  return enrichTransformWithTranscript(normalized, transcript);
 }
 
 export async function generateSiteTransformFromTranscript(transcript) {

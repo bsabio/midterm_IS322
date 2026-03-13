@@ -1,6 +1,8 @@
 import express from "express";
 import multer from "multer";
 import dotenv from "dotenv";
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { generateSiteTransformFromTranscript } from "./lib/transformEngine.js";
 
 dotenv.config();
@@ -79,6 +81,53 @@ async function generateMarkdownWithOllama({ transcript, systemPrompt }) {
 
 function utf8ToBase64(value) {
   return Buffer.from(value, "utf8").toString("base64");
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function buildTransformCardsHtml(transform) {
+  const panels = Array.isArray(transform?.panels) ? transform.panels : [];
+  return panels
+    .map((panel) => {
+      const heading = escapeHtml(panel?.heading || "Section");
+      const body = escapeHtml(panel?.body || "");
+      return [
+        '<article class="transform-card">',
+        `  <h3>${heading}</h3>`,
+        `  <p>${body}</p>`,
+        "</article>",
+      ].join("\n");
+    })
+    .join("\n");
+}
+
+function applyTransformToIndexHtml(indexHtml, transform) {
+  const title = escapeHtml(transform?.page?.title || "Voice-to-Blog POC");
+  const subtitle = escapeHtml(transform?.page?.subtitle || "Transcript converted into live page content.");
+  const cardsHtml = buildTransformCardsHtml(transform);
+
+  let updated = indexHtml;
+  updated = updated.replace(
+    /<h1 id="pageTitle">[\s\S]*?<\/h1>/,
+    `<h1 id="pageTitle">${title}</h1>`
+  );
+  updated = updated.replace(
+    /<p id="pageSubtitle" class="muted">[\s\S]*?<\/p>/,
+    `<p id="pageSubtitle" class="muted">${subtitle}</p>`
+  );
+  updated = updated.replace(
+    /<div id="transformSections" class="grid-sections">[\s\S]*?<\/div>/,
+    `<div id="transformSections" class="grid-sections">\n${cardsHtml}\n</div>`
+  );
+
+  return updated;
 }
 
 async function publishMarkdown({ path, markdown, sha, message }) {
@@ -199,6 +248,33 @@ app.post("/api/transform", async (req, res) => {
     return res.json(result);
   } catch (error) {
     return res.status(500).json({ error: error.message || "Transform failed." });
+  }
+});
+
+app.post("/api/transform/apply", async (req, res) => {
+  try {
+    if (process.env.VERCEL) {
+      return res.status(400).json({
+        error: "Persisting source files is not supported on Vercel runtime.",
+      });
+    }
+
+    const transform = req.body?.transform;
+    if (!transform || typeof transform !== "object") {
+      return res.status(400).json({ error: "transform object is required" });
+    }
+
+    const indexPath = path.resolve(process.cwd(), "index.html");
+    const currentHtml = await readFile(indexPath, "utf8");
+    const updatedHtml = applyTransformToIndexHtml(currentHtml, transform);
+    await writeFile(indexPath, updatedHtml, "utf8");
+
+    return res.json({
+      ok: true,
+      message: "Updated index.html with transformed title, subtitle, and sections.",
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message || "Persist transform failed." });
   }
 });
 
