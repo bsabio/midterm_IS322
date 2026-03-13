@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voice-to-Blog POC</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Serverless Voice-to-Blog POC</h1>
+    <p class="muted">Client-only prototype using MediaRecorder + OpenAI APIs.</p>
+
+    <section class="panel">
+      <h2>1) Audio Capture</h2>
+      <div class="row">
+        <button id="startBtn">Start Recording</button>
+        <button id="stopBtn" disabled>Stop Recording</button>
+      </div>
+      <audio id="playback" controls></audio>
+      <p id="recordingStatus" class="muted">Idle</p>
+    </section>
+
+    <section class="panel">
+      <h2>2) Transcript</h2>
+      <div class="row">
+        <button id="transcribeBtn" disabled>Transcribe Audio (Whisper)</button>
+      </div>
+      <textarea id="transcript" rows="8" placeholder="Transcript appears here..."></textarea>
+    </section>
+
+    <section class="panel">
+      <h2>3) Markdown Blog</h2>
+      <div class="row">
+        <button id="formatBtn" disabled>Generate Strict Markdown Blog</button>
+      </div>
+      <textarea id="markdownBlog" rows="14" placeholder="Markdown blog post appears here..."></textarea>
+    </section>
+
+    <section class="panel">
+      <h2>Logs</h2>
+      <pre id="logs" class="logs"></pre>
+    </section>
+  </main>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
