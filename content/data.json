@@ -1,0 +1,28 @@
+{
+  "consultant_name": "Eleanor Vance, Ph.D.",
+  "tagline": "Empowering Businesses through Strategic Artificial Intelligence",
+  "bio": "With over a decade of experience bridging the gap between cutting-edge AI research and practical enterprise applications, Eleanor Vance helps forward-thinking organizations navigate the complexities of AI adoption. She specializes in developing tailored strategies that drive innovation, optimize operations, and create sustainable competitive advantages in an increasingly automated world.",
+  "contact_email": "hello@eleanorvance-ai.com",
+  "services": [
+    {
+      "id": "service-readiness",
+      "name": "AI Readiness Assessment",
+      "description": "A comprehensive evaluation of your organization's current data infrastructure, technical capabilities, and business processes to determine your readiness for AI integration."
+    },
+    {
+      "id": "service-strategy",
+      "name": "Custom AI Strategy Development",
+      "description": "Creation of a tailored, actionable roadmap for deploying AI solutions aligned with your core business objectives, ensuring maximum ROI and strategic alignment."
+    },
+    {
+      "id": "service-prototyping",
+      "name": "Machine Learning Model Prototyping",
+      "description": "Rapid development and validation of proof-of-concept ML models to demonstrate technical feasibility and business value before full-scale implementation."
+    },
+    {
+      "id": "service-ethics",
+      "name": "AI Ethics & Governance Consulting",
+      "description": "Guidance on establishing robust frameworks for responsible AI deployment, focusing on mitigating bias, ensuring transparency, and maintaining regulatory compliance."
+    }
+  ]
+}

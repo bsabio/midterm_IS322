@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community Blog Posts</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="panel">
+      <h1>Community Blog Posts</h1>
+      <p class="muted">Share updates with other signed-in users. Posts are visible to everyone in this app.</p>
+      <div class="row" style="margin-bottom: 0;">
+        <a class="hero-cta" href="/">Back to Dashboard</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Create Post</h2>
+      <div class="row" style="display: grid; gap: 10px; margin-bottom: 0;">
+        <input id="postTitle" type="text" placeholder="Post title" maxlength="120" />
+        <textarea id="postContent" rows="6" placeholder="What do you want to share with the community?"></textarea>
+        <button id="publishPostBtn" type="button">Publish Post</button>
+        <p id="postStatus" class="muted" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Recent Posts</h2>
+      <div id="communityPosts" class="community-post-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const postTitleEl = document.getElementById("postTitle");
+    const postContentEl = document.getElementById("postContent");
+    const publishPostBtn = document.getElementById("publishPostBtn");
+    const postStatusEl = document.getElementById("postStatus");
+    const communityPostsEl = document.getElementById("communityPosts");
+    let currentUser = null;
+
+    function formatDate(isoDate) {
+      const date = new Date(isoDate);
+      if (Number.isNaN(date.getTime())) {
+        return "";
+      }
+      return date.toLocaleString();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderPosts(posts) {
+      if (!Array.isArray(posts) || posts.length === 0) {
+        communityPostsEl.innerHTML = '<p class="muted">No community posts yet. Be the first to publish one.</p>';
+        return;
+      }
+
+      communityPostsEl.innerHTML = posts
+        .map((post) => {
+          const authorName = post?.author?.displayName || post?.author?.email || "Unknown user";
+          const authorEmail = post?.author?.email ? ` (${post.author.email})` : "";
+          const timestamp = formatDate(post?.createdAt);
+          const isOwner = canDeletePost(post);
+          return [
+            '<article class="community-post">',
+            `  <h3>${escapeHtml(post?.title || "Untitled")}</h3>`,
+            `  <p class="community-post-meta">From ${escapeHtml(authorName)}${escapeHtml(authorEmail)}${timestamp ? ` • ${escapeHtml(timestamp)}` : ""}</p>`,
+            `  <p>${escapeHtml(post?.content || "")}</p>`,
+            isOwner ? `  <div class="community-post-actions"><button class="delete-post-btn" data-post-id="${escapeHtml(post?.id || "")}" type="button">Delete Post</button></div>` : "",
+            '</article>',
+          ].join("\n");
+        })
+        .join("\n");
+    }
+
+    function canDeletePost(post) {
+      if (!post || !post.author || !currentUser) {
+        return false;
+      }
+
+      const actorId = String(currentUser?.id || "").trim();
+      const ownerId = String(post?.author?.id || "").trim();
+      if (actorId && ownerId && actorId === ownerId) {
+        return true;
+      }
+
+      const actorEmail = String(currentUser?.email || "").trim().toLowerCase();
+      const ownerEmail = String(post?.author?.email || "").trim().toLowerCase();
+      return Boolean(actorEmail && ownerEmail && actorEmail === ownerEmail);
+    }
+
+    async function loadCurrentUser() {
+      const response = await fetch("/api/auth/me", { method: "GET" });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload?.authenticated) {
+        throw new Error(payload?.error || "You must be signed in to manage posts.");
+      }
+
+      const user = payload?.user || {};
+      const emailFromArray = Array.isArray(user.emails) ? user.emails[0]?.value : "";
+      currentUser = {
+        id: String(user.id || "").trim() || null,
+        email: String(user.email || emailFromArray || "").trim().toLowerCase() || null,
+      };
+    }
+
+    async function loadPosts() {
+      const response = await fetch("/api/community/posts", { method: "GET" });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || `Could not load posts (${response.status})`);
+      }
+      renderPosts(payload.posts || []);
+    }
+
+    async function publishPost() {
+      const title = String(postTitleEl.value || "").trim();
+      const content = String(postContentEl.value || "").trim();
+
+      if (!title || !content) {
+        postStatusEl.textContent = "Add a title and content first.";
+        return;
+      }
+
+      publishPostBtn.disabled = true;
+      postStatusEl.textContent = "Publishing post...";
+
+      try {
+        const response = await fetch("/api/community/posts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, content }),
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || `Could not publish post (${response.status})`);
+        }
+
+        postTitleEl.value = "";
+        postContentEl.value = "";
+        postStatusEl.textContent = "Post published.";
+        await loadPosts();
+      } catch (error) {
+        postStatusEl.textContent = error.message || "Could not publish post.";
+      } finally {
+        publishPostBtn.disabled = false;
+      }
+    }
+
+    async function deletePost(postId) {
+      const id = String(postId || "").trim();
+      if (!id) {
+        return;
+      }
+
+      postStatusEl.textContent = "Deleting post...";
+      try {
+        const response = await fetch(`/api/community/posts/${encodeURIComponent(id)}`, {
+          method: "DELETE",
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || `Could not delete post (${response.status})`);
+        }
+
+        postStatusEl.textContent = "Post deleted.";
+        await loadPosts();
+      } catch (error) {
+        postStatusEl.textContent = error.message || "Could not delete post.";
+      }
+    }
+
+    publishPostBtn.addEventListener("click", () => {
+      publishPost();
+    });
+
+    communityPostsEl.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+      if (!target.classList.contains("delete-post-btn")) {
+        return;
+      }
+
+      const postId = target.getAttribute("data-post-id");
+      deletePost(postId);
+    });
+
+    Promise.all([loadCurrentUser(), loadPosts()]).catch((error) => {
+      postStatusEl.textContent = error.message || "Could not load community posts.";
+    });
+  </script>
+</body>
+</html>
