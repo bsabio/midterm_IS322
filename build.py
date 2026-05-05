@@ -1,6 +1,8 @@
 import json
 import os
-from jinja2 import Environment, FileSystemLoader
+import glob
+import markdown
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 def main():
     # Fail-safe check for AI_API_KEY
@@ -20,24 +22,61 @@ def main():
         print("Error: Invalid JSON format in data.json.")
         return
 
-    # 2. Set up Jinja2 environment and load template.html
+    # 2. Process Blog Posts
+    posts = []
+    os.makedirs("posts", exist_ok=True)
+    post_files = glob.glob("content/posts/*.md")
+    
+    # Set up Jinja2 environment
     try:
-        # Load templates from the current directory
-        env = Environment(loader=FileSystemLoader("."))
-        template = env.get_template("template.html")
+        env = Environment(
+            loader=FileSystemLoader("."),
+            autoescape=select_autoescape(['html', 'xml'])
+        )
+        post_template = env.get_template("post-template.html")
+        main_template = env.get_template("template.html")
     except Exception as e:
-        print(f"Error loading template: {e}")
+        print(f"Error loading templates: {e}")
         return
 
-    # 3. Render the data into the template
-    # We pass the loaded JSON as 'data' since the template uses {{ data.property }}
-    rendered_html = template.render(data=data)
+    for filepath in post_files:
+        filename = os.path.basename(filepath)
+        slug = os.path.splitext(filename)[0]
+        
+        with open(filepath, "r", encoding="utf-8") as f:
+            md_content = f.read()
+            
+        # Extract title (first h1) or fallback to slug
+        title = slug.replace("-", " ").title()
+        lines = md_content.split('\n')
+        for line in lines:
+            if line.startswith('# '):
+                title = line[2:].strip()
+                break
+                
+        # Convert Markdown to HTML
+        html_content = markdown.markdown(md_content)
+        
+        # Render individual post page
+        post_html = post_template.render(title=title, content=html_content)
+        
+        # Save post html
+        with open(f"posts/{slug}.html", "w", encoding="utf-8") as f:
+            f.write(post_html)
+            
+        posts.append({
+            "title": title,
+            "slug": slug
+        })
+
+    # 3. Render the main index.html
+    rendered_html = main_template.render(data=data, posts=posts)
 
     # 4. Save the final result as index.html
     try:
         with open("index.html", "w", encoding="utf-8") as file:
             file.write(rendered_html)
-        print("Build successful! index.html has been generated.")
+        print(f"Build successful! index.html and {len(posts)} posts generated.")
     except Exception as e:
         print(f"Error saving index.html: {e}")
 

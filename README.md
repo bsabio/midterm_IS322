@@ -27,11 +27,11 @@ We use GitHub Pages to host your site for free!
 3. In the **Branch** dropdown, select the **gh-pages** branch. *(Note: If you don't see `gh-pages` yet, complete Step 4 first to trigger the initial build!)*
 4. Click **Save**. 
 
-### Step 4: Update Your Content
-You don't need to touch any code to update your website! You can do it right from your browser.
-1. In your repository files, navigate to `content/data.json`.
-2. Click the **✏️ (Edit)** icon to modify the file directly in GitHub.
-3. Update your name, tagline, bio, contact email, and the services array to reflect your personal consulting brand.
-4. Click **Commit changes**.
+### Step 4: Access the Admin Dashboard
+You don't need to touch any code or navigate GitHub files to update your website! You can use the built-in Admin Dashboard directly on your live site.
+1. Generate a **GitHub Personal Access Token (PAT)** by going to your GitHub Settings > Developer Settings > Personal access tokens > Tokens (classic). Ensure it has the `repo` scope selected.
+2. Go to your live website and add `/admin.html` to the URL (e.g. `https://yourusername.github.io/yourrepo/admin.html`).
+3. Enter your repository name (e.g. `yourusername/yourrepo`) and paste your secure Personal Access Token.
+4. Edit your content visually! When you click **Save Changes**, the dashboard will securely push the updates to GitHub.
 
-**That's it!** Every time you edit the `data.json` file, a GitHub Action will automatically run in the background, rebuild your HTML site using the new data, and publish it. Within a minute or two, your live website will reflect your latest changes.
+**That's it!** Every time you click "Save Changes" in the admin dashboard, a GitHub Action will automatically run in the background, rebuild your HTML site, and publish it. Within a minute or two, your live website will reflect your latest changes.

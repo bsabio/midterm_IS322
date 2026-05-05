@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'content/data.json'
+      - 'content/**'
 
 permissions:
   contents: write
@@ -23,7 +23,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install jinja2
+        run: pip install jinja2 markdown
 
       - name: Build site
         run: python build.py
