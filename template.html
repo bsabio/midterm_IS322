@@ -74,9 +74,13 @@
         </section>
 
         <!-- Footer -->
-        <footer class="mt-8 mb-12 text-center text-muted font-bold">
+        <footer class="mt-8 mb-12 text-center text-muted font-bold flex flex-col items-center gap-4">
             <p>&copy; <script>document.write(new Date().getFullYear())</script> {{ data.consultant_name }}. All rights reserved.</p>
-            <a href="mailto:{{ data.contact_email }}" class="inline-block mt-4 text-black border-b-[3px] border-black hover:text-accentPrimary">Contact: {{ data.contact_email }}</a>
+            <div class="flex gap-4 items-center">
+                <a href="mailto:{{ data.contact_email }}" class="text-black border-b-[3px] border-black hover:text-accentPrimary">Contact: {{ data.contact_email }}</a>
+                <span class="text-line">&bull;</span>
+                <a href="admin.html" class="text-black border-b-[3px] border-black hover:text-accentPrimary">Admin Login</a>
+            </div>
         </footer>
 
     </main>
