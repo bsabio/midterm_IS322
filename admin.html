@@ -119,6 +119,27 @@
                             <label class="block font-black mb-2">Bio</label>
                             <textarea id="input-bio" rows="6" class="w-full bg-white border-[3px] border-black px-4 py-3 font-bold focus:outline-none"></textarea>
                         </div>
+
+                        <!-- Theme Settings -->
+                        <h3 class="text-xl font-black border-b-[3px] border-black pb-2 mt-4">Theme Settings</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-black mb-2">Background Color</label>
+                                <input id="input-bg-color" type="color" value="#eef1dd" class="w-full h-12 border-[3px] border-black cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="block font-black mb-2">Accent Color</label>
+                                <input id="input-accent-color" type="color" value="#e87f5a" class="w-full h-12 border-[3px] border-black cursor-pointer">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-black mb-2">Text Size</label>
+                            <select id="input-text-size" class="w-full bg-white border-[3px] border-black px-4 py-3 font-bold focus:outline-none">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
                     </div>
                     <div>
                         <div class="flex justify-between items-center border-b-[3px] border-black pb-2 mb-6">
@@ -445,6 +466,11 @@
                     contact_email: document.getElementById('input-email').value,
                     tagline: document.getElementById('input-tagline').value,
                     bio: document.getElementById('input-bio').value,
+                    theme: {
+                        backgroundColor: document.getElementById('input-bg-color').value,
+                        accentColor: document.getElementById('input-accent-color').value,
+                        textSize: document.getElementById('input-text-size').value
+                    },
                     services: currentServices
                 };
 
@@ -455,7 +481,12 @@ ${JSON.stringify(currentState)}
 User Voice Command:
 "${transcript}"
 
-Apply the user's instructions to the JSON. If they ask to add a service, append it to the services array. Return ONLY the fully updated JSON object. Do not include markdown code blocks, backticks, or any other text.`;
+Apply the user's instructions to the JSON. 
+- For text/content fields: update them as asked.
+- For theme.backgroundColor or theme.accentColor: set them to valid hex color codes (e.g. #3b82f6 for blue).
+- For theme.textSize: only use one of these exact values: "small", "medium", or "large".
+- If they ask to add a service, append it to the services array.
+Return ONLY the fully updated JSON object. Do not include markdown code blocks, backticks, or any other text.`;
 
                 const chatRes = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
@@ -486,6 +517,11 @@ Apply the user's instructions to the JSON. If they ask to add a service, append 
             document.getElementById('input-email').value = siteData.contact_email || '';
             document.getElementById('input-tagline').value = siteData.tagline || '';
             document.getElementById('input-bio').value = siteData.bio || '';
+            // Render theme settings
+            const theme = siteData.theme || {};
+            document.getElementById('input-bg-color').value = theme.backgroundColor || '#eef1dd';
+            document.getElementById('input-accent-color').value = theme.accentColor || '#e87f5a';
+            document.getElementById('input-text-size').value = theme.textSize || 'medium';
             const container = document.getElementById('services-container');
             container.innerHTML = '';
             if(siteData.services) {
@@ -524,6 +560,11 @@ Apply the user's instructions to the JSON. If they ask to add a service, append 
             siteData.contact_email = document.getElementById('input-email').value;
             siteData.tagline = document.getElementById('input-tagline').value;
             siteData.bio = document.getElementById('input-bio').value;
+            siteData.theme = {
+                backgroundColor: document.getElementById('input-bg-color').value,
+                accentColor: document.getElementById('input-accent-color').value,
+                textSize: document.getElementById('input-text-size').value
+            };
 
             const newServices = [];
             document.querySelectorAll('.service-item').forEach(item => {
