@@ -1,0 +1,3 @@
+# Ignore Jinja templates so Prettier doesn't break the {{ }} syntax tags.
+post-template.html
+template.html

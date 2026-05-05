@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth" style="font-size: 16px">
+<html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,24 +28,132 @@
             }
         }
     </script>
+    <script>
+        // Inject Jinja variables into CSS to prevent IDE linter errors
+        document.documentElement.style.fontSize = '16px';
+        document.documentElement.style.setProperty('--accent-color', '#e87f5a');
+    </script>
     <style>
-        .prose h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 1rem; color: #1e2230; line-height: 1.1; }
-        .prose h2 { font-size: 1.8rem; font-weight: 900; margin-top: 2rem; margin-bottom: 1rem; color: #1e2230; border-bottom: 3px solid #000; padding-bottom: 0.5rem; }
-        .prose p { margin-bottom: 1rem; line-height: 1.6; color: #1e2230; font-family: "Segoe UI", sans-serif; font-weight: 500; font-size: 1.1rem; }
-        .prose ul { list-style-type: square; padding-left: 2rem; margin-bottom: 1rem; color: #1e2230; font-family: "Segoe UI", sans-serif; font-weight: 500; font-size: 1.1rem;}
-        .prose li { margin-bottom: 0.5rem; }
-        .prose a { color: #e87f5a; text-decoration: none; border-bottom: 3px solid #000; font-weight: 900; }
-        .prose a:hover { background-color: #dce8f3; }
-        .prose strong { color: #1e2230; font-weight: 900; }
-        .prose blockquote { border-left: 4px solid #e87f5a; padding-left: 1rem; color: #4a5268; font-style: italic; margin: 1.5rem 0; font-family: "Segoe UI", sans-serif; }
+
+        .prose h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: #1e2230;
+            line-height: 1.1;
+        }
+
+        .prose h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #1e2230;
+            border-bottom: 3px solid #000;
+            padding-bottom: 0.5rem;
+        }
+
+        .prose p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            color: #1e2230;
+            font-family: "Segoe UI", sans-serif;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .prose ul {
+            list-style-type: square;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+            color: #1e2230;
+            font-family: "Segoe UI", sans-serif;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+
+        .prose a {
+            color: var(--accent-color);
+            text-decoration: none;
+            border-bottom: 3px solid #000;
+            font-weight: 900;
+        }
+
+        .prose a:hover {
+            background-color: #dce8f3;
+        }
+
+        .prose strong {
+            color: #1e2230;
+            font-weight: 900;
+        }
+
+        .prose blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            color: #4a5268;
+            font-style: italic;
+            margin: 1.5rem 0;
+            font-family: "Segoe UI", sans-serif;
+        }
     </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
+
 <body class="bg-bgA text-textDark antialiased min-h-screen">
 
+    <!-- Google Login Overlay -->
+    <div id="google-login-overlay" style="display:flex;position:fixed;inset:0;z-index:9999;background:#eef1dd;align-items:center;justify-content:center;">
+        <div style="background:#fff;border:3px solid #000;padding:3rem 2.5rem;box-shadow:6px 6px 0 #2f3442;max-width:420px;width:90%;text-align:center;">
+            <h1 style="font-size:2rem;font-weight:900;margin-bottom:0.5rem;color:#1e2230;font-family:'Arial Black',sans-serif;">Members Only</h1>
+            <p style="color:#4a5268;font-weight:700;margin-bottom:2rem;font-family:'Segoe UI',sans-serif;">Sign in with Google to read this post.</p>
+            <div id="g_id_onload"
+                data-client_id="1006478187461-rufkdvo3lve7s8vubk0fgk3hve415bhn.apps.googleusercontent.com"
+                data-callback="handleGoogleLogin"
+                data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                data-type="standard"
+                data-size="large"
+                data-theme="outline"
+                data-text="sign_in_with"
+                data-shape="rectangular"
+                data-logo_alignment="left">
+            </div>
+            <p id="login-error" style="color:#e53e3e;font-weight:700;margin-top:1rem;display:none;">Sign-in failed. Please try again.</p>
+        </div>
+    </div>
+
+    <script>
+        function handleGoogleLogin(response) {
+            if (response && response.credential) {
+                localStorage.setItem('google_token', response.credential);
+                localStorage.setItem('google_login_time', Date.now());
+                document.getElementById('google-login-overlay').style.display = 'none';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        (function() {
+            const token = localStorage.getItem('google_token');
+            const loginTime = parseInt(localStorage.getItem('google_login_time') || '0');
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            if (token && (Date.now() - loginTime) < twentyFourHours) {
+                document.getElementById('google-login-overlay').style.display = 'none';
+            }
+        })();
+    </script>
+
     <main class="max-w-[1020px] mx-auto p-6 md:p-8">
-        
+
         <div class="mb-6">
-            <a href="../index.html" class="inline-block bg-white border-[3px] border-black text-black font-black px-4 py-2 shadow-swiss-sm hover:-translate-y-[1px] hover:-translate-x-[1px] transition-transform">
+            <a href="../index.html"
+                class="inline-block bg-white border-[3px] border-black text-black font-black px-4 py-2 shadow-swiss-sm hover:-translate-y-[1px] hover:-translate-x-[1px] transition-transform">
                 &larr; Back to Dashboard
             </a>
         </div>
@@ -63,4 +172,5 @@
     </main>
 
 </body>
+
 </html>
