@@ -3,6 +3,11 @@
   "tagline": "this is my midterm",
   "bio": "With over a decade of experience bridging the gap between cutting-edge AI research and practical enterprise applications, Eleanor Vance helps forward-thinking organizations navigate the complexities of AI adoption. She specializes in developing tailored strategies that drive innovation, optimize operations, and create sustainable competitive advantages in an increasingly automated world.",
   "contact_email": "bs679@njit.edu",
+  "theme": {
+    "backgroundColor": "#eef1dd",
+    "accentColor": "#e87f5a",
+    "textSize": "medium"
+  },
   "services": [
     {
       "id": "service-readiness",

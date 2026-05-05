@@ -57,8 +57,18 @@ def main():
         # Convert Markdown to HTML
         html_content = markdown.markdown(md_content)
         
+        # Extract theme (with safe defaults)
+        theme = data.get("theme", {})
+        bg_color = theme.get("backgroundColor", "#eef1dd")
+        accent_color = theme.get("accentColor", "#e87f5a")
+        text_size_map = {"small": "14px", "medium": "16px", "large": "20px"}
+        font_size = text_size_map.get(theme.get("textSize", "medium"), "16px")
+
         # Render individual post page
-        post_html = post_template.render(title=title, content=html_content)
+        post_html = post_template.render(
+            title=title, content=html_content,
+            bg_color=bg_color, accent_color=accent_color, font_size=font_size
+        )
         
         # Save post html
         with open(f"posts/{slug}.html", "w", encoding="utf-8") as f:
@@ -69,8 +79,18 @@ def main():
             "slug": slug
         })
 
+    # Extract theme for main template
+    theme = data.get("theme", {})
+    bg_color = theme.get("backgroundColor", "#eef1dd")
+    accent_color = theme.get("accentColor", "#e87f5a")
+    text_size_map = {"small": "14px", "medium": "16px", "large": "20px"}
+    font_size = text_size_map.get(theme.get("textSize", "medium"), "16px")
+
     # 3. Render the main index.html
-    rendered_html = main_template.render(data=data, posts=posts)
+    rendered_html = main_template.render(
+        data=data, posts=posts,
+        bg_color=bg_color, accent_color=accent_color, font_size=font_size
+    )
 
     # 4. Save the final result as index.html
     try:
