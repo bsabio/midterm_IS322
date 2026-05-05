@@ -1,0 +1,1 @@
+Hello, welcome to my midterm project. The first one didn't work that well, but with spec-driven development, I was able to get it working. Spec-driven development is the future of software development.
