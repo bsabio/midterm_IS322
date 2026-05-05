@@ -30,9 +30,14 @@
         }
     </script>
 </head>
-<body class="bg-bgA text-textDark antialiased min-h-screen border-none m-0 p-0">
+<body class="bg-bgA text-textDark antialiased min-h-screen border-none m-0 p-0 relative">
 
-    <main class="max-w-[1020px] mx-auto p-6 md:p-8 grid gap-8">
+    <!-- Admin Tab -->
+    <a href="admin.html" class="fixed top-4 right-4 md:top-6 md:right-8 z-50 bg-white border-[3px] border-black text-black font-black px-4 py-2 shadow-swiss-sm hover:-translate-y-[1px] hover:-translate-x-[1px] transition-transform">
+        Admin Login &rarr;
+    </a>
+
+    <main class="max-w-[1020px] mx-auto p-6 md:p-8 grid gap-8 pt-20 md:pt-8">
         
         <!-- Hero Section -->
         <section class="bg-white border-[3px] border-black p-8 md:p-12 shadow-swiss mt-4 md:mt-8">
@@ -87,11 +92,7 @@
         <!-- Footer -->
         <footer class="mt-8 mb-12 text-center text-muted font-bold flex flex-col items-center gap-4">
             <p>&copy; <script>document.write(new Date().getFullYear())</script> brandon sabio. All rights reserved.</p>
-            <div class="flex gap-4 items-center">
-                <a href="mailto:hello@eleanorvance-ai.com" class="text-black border-b-[3px] border-black hover:text-accentPrimary">Contact: hello@eleanorvance-ai.com</a>
-                <span class="text-line">&bull;</span>
-                <a href="admin.html" class="text-black border-b-[3px] border-black hover:text-accentPrimary">Admin Login</a>
-            </div>
+            <a href="mailto:hello@eleanorvance-ai.com" class="text-black border-b-[3px] border-black hover:text-accentPrimary">Contact: hello@eleanorvance-ai.com</a>
         </footer>
 
     </main>
