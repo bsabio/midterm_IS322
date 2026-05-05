@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serverless CMS - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { dark: '#0B0F19', darker: '#06090E' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-slate-300 min-h-screen antialiased selection:bg-indigo-500/30 p-6 sm:p-12">
+
+    <!-- Auth Section -->
+    <div id="auth-section" class="max-w-md mx-auto bg-slate-900/50 p-8 rounded-2xl border border-slate-800 shadow-xl backdrop-blur-sm mt-20">
+        <div class="mb-8 text-center">
+            <h2 class="text-2xl font-semibold text-white mb-2">Admin Login</h2>
+            <p class="text-sm text-slate-400">Authenticate with GitHub to edit content.</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-1">Repository Name</label>
+                <input id="repo" type="text" value="bsabio/midterm_IS322" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-1">GitHub Personal Access Token (PAT)</label>
+                <input id="token" type="password" placeholder="ghp_..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-1">OpenAI API Key (For Voice-to-Blog)</label>
+                <input id="openai-key" type="password" placeholder="sk-proj-..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <p class="text-xs text-slate-500 mt-1">Saved locally in your browser.</p>
+            </div>
+            <button id="login-btn" onclick="authenticate()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-lg mt-4 transition-colors">
+                Connect to GitHub
+            </button>
+            <div id="auth-error" class="hidden text-red-400 text-sm text-center mt-3"></div>
+        </div>
+    </div>
+
+    <!-- Main Admin Section -->
+    <div id="admin-section" class="hidden max-w-5xl mx-auto mt-10">
+        
+        <!-- Tabs -->
+        <div class="flex gap-4 border-b border-slate-800 mb-8 pb-4">
+            <button onclick="switchTab('site')" id="tab-site" class="text-white font-medium px-5 py-2 bg-slate-800 rounded-lg transition">Site Details</button>
+            <button onclick="switchTab('blog')" id="tab-blog" class="text-slate-400 font-medium px-5 py-2 hover:text-white transition">Blog Posts</button>
+        </div>
+
+        <!-- ======================= -->
+        <!-- SITE DETAILS EDITOR     -->
+        <!-- ======================= -->
+        <div id="view-site" class="bg-slate-900/40 p-8 rounded-3xl border border-slate-800 shadow-2xl">
+            <div class="flex justify-between items-center mb-8 pb-6 border-b border-slate-800">
+                <h2 class="text-2xl font-semibold text-white">Edit Site Content</h2>
+                <button id="save-site-btn" onclick="saveSiteChanges()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors flex items-center">
+                    <span>Save Changes</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <!-- Basic Info -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-medium text-white border-b border-slate-800 pb-2">Basic Info</h3>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Consultant Name</label>
+                        <input id="input-name" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Contact Email</label>
+                        <input id="input-email" type="email" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Tagline</label>
+                        <input id="input-tagline" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Bio</label>
+                        <textarea id="input-bio" rows="6" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+                </div>
+                <!-- Services -->
+                <div>
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-6">
+                        <h3 class="text-lg font-medium text-white">Services</h3>
+                        <button onclick="addService()" class="text-sm text-indigo-400 hover:text-indigo-300 flex items-center">+ Add Service</button>
+                    </div>
+                    <div id="services-container" class="space-y-6"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================= -->
+        <!-- BLOG POSTS MANAGER      -->
+        <!-- ======================= -->
+        <div id="view-blog" class="hidden bg-slate-900/40 p-8 rounded-3xl border border-slate-800 shadow-2xl">
+            <div class="flex justify-between items-center mb-8 pb-6 border-b border-slate-800">
+                <h2 class="text-2xl font-semibold text-white">Blog Posts</h2>
+                <button onclick="openPostEditor()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors">New Post</button>
+            </div>
+            <div id="blog-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Posts injected dynamically here -->
+                <div class="text-slate-500">Loading posts...</div>
+            </div>
+        </div>
+
+        <!-- ======================= -->
+        <!-- BLOG POST EDITOR        -->
+        <!-- ======================= -->
+        <div id="view-post-editor" class="hidden bg-slate-900/40 p-8 rounded-3xl border border-slate-800 shadow-2xl">
+            <div class="flex justify-between items-center mb-8 pb-6 border-b border-slate-800">
+                <h2 class="text-2xl font-semibold text-white" id="post-editor-title">Edit Post</h2>
+                <div class="flex gap-4">
+                    <button onclick="switchTab('blog')" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
+                    <button id="save-post-btn" onclick="savePost()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg">Save Post</button>
+                </div>
+            </div>
+            
+            <!-- Whisper Voice Dictation Panel -->
+            <div class="mb-6 p-5 bg-slate-950 border border-slate-700 rounded-lg">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-medium text-slate-300">Voice-to-Blog (OpenAI Whisper)</h3>
+                    <span id="record-status" class="text-sm text-slate-500">Ready</span>
+                </div>
+                <div class="flex gap-4 items-center">
+                    <button id="btn-start-record" onclick="startRecording()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded font-medium transition-colors">Start Recording</button>
+                    <button id="btn-stop-record" onclick="stopRecording()" disabled class="px-4 py-2 bg-slate-800 text-slate-500 rounded font-medium transition-colors">Stop & Transcribe</button>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-400 mb-1">Filename (must end in .md)</label>
+                <input id="input-post-filename" type="text" placeholder="my-new-post.md" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-indigo-500">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-400 mb-1">Markdown Content (Start with # Title)</label>
+                <textarea id="input-post-content" rows="15" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-indigo-500 font-mono text-sm leading-relaxed"></textarea>
+            </div>
+            <input type="hidden" id="input-post-sha">
+        </div>
+
+    </div>
+
+    <script>
+        let siteDataSha = '';
+        let siteData = {};
+        let currentToken = '';
+        let currentRepo = '';
+        let mediaRecorder;
+        let audioChunks = [];
+
+        // Load saved API key on init
+        window.onload = () => {
+            const savedKey = localStorage.getItem('openai_key');
+            if (savedKey) document.getElementById('openai-key').value = savedKey;
+            
+            const savedGhToken = localStorage.getItem('gh_token');
+            if (savedGhToken) document.getElementById('token').value = savedGhToken;
+        };
+
+        // Base64 helpers supporting Unicode
+        function b64DecodeUnicode(str) {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+        function b64EncodeUnicode(str) {
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+                function toSolidBytes(match, p1) { return String.fromCharCode('0x' + p1); }));
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.toString()
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        async function githubAPI(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: {
+                    'Authorization': `token ${currentToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+            const response = await fetch(`https://api.github.com/repos/${currentRepo}/${endpoint}`, options);
+            if (!response.ok) throw new Error(await response.text());
+            return response.json();
+        }
+
+        async function authenticate() {
+            const btn = document.getElementById('login-btn');
+            const errorDiv = document.getElementById('auth-error');
+            currentToken = document.getElementById('token').value.trim();
+            currentRepo = document.getElementById('repo').value.trim();
+            const openAIKey = document.getElementById('openai-key').value.trim();
+            
+            if(!currentToken || !currentRepo) {
+                errorDiv.innerText = "Please fill out GitHub Token and Repo.";
+                errorDiv.classList.remove('hidden'); return;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('gh_token', currentToken);
+            if (openAIKey) localStorage.setItem('openai_key', openAIKey);
+
+            btn.innerText = "Connecting...";
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const data = await githubAPI('contents/content/data.json');
+                siteDataSha = data.sha;
+                siteData = JSON.parse(b64DecodeUnicode(data.content));
+                
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('admin-section').classList.remove('hidden');
+                
+                renderSiteForm();
+                await fetchBlogPosts();
+            } catch (err) {
+                errorDiv.innerText = "Auth failed. Check token/repo.";
+                errorDiv.classList.remove('hidden');
+                btn.innerText = "Connect to GitHub";
+            }
+        }
+
+        function switchTab(tab) {
+            document.getElementById('view-site').classList.add('hidden');
+            document.getElementById('view-blog').classList.add('hidden');
+            document.getElementById('view-post-editor').classList.add('hidden');
+            
+            document.getElementById('tab-site').className = "text-slate-400 font-medium px-5 py-2 hover:text-white transition";
+            document.getElementById('tab-blog').className = "text-slate-400 font-medium px-5 py-2 hover:text-white transition";
+
+            if (tab === 'site') {
+                document.getElementById('view-site').classList.remove('hidden');
+                document.getElementById('tab-site').className = "text-white font-medium px-5 py-2 bg-slate-800 rounded-lg transition";
+            } else if (tab === 'blog') {
+                document.getElementById('view-blog').classList.remove('hidden');
+                document.getElementById('tab-blog').className = "text-white font-medium px-5 py-2 bg-slate-800 rounded-lg transition";
+                fetchBlogPosts();
+            }
+        }
+
+        // ============================
+        // VOICE-TO-BLOG (WHISPER)
+        // ============================
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+
+                mediaRecorder.onstop = async () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    stream.getTracks().forEach(track => track.stop());
+                    await processAudio(blob);
+                };
+
+                mediaRecorder.start();
+                
+                const btnStart = document.getElementById('btn-start-record');
+                const btnStop = document.getElementById('btn-stop-record');
+                btnStart.disabled = true;
+                btnStart.classList.replace('bg-red-600', 'bg-slate-800');
+                btnStart.classList.replace('hover:bg-red-500', 'text-slate-500');
+                
+                btnStop.disabled = false;
+                btnStop.classList.replace('bg-slate-800', 'bg-red-600');
+                btnStop.classList.replace('text-slate-500', 'text-white');
+                btnStop.classList.add('hover:bg-red-500');
+                
+                document.getElementById('record-status').innerHTML = '<span class="text-red-400 animate-pulse">● Recording...</span>';
+            } catch (err) {
+                alert("Microphone access denied or unavailable: " + err.message);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                
+                const btnStart = document.getElementById('btn-start-record');
+                const btnStop = document.getElementById('btn-stop-record');
+                
+                btnStop.disabled = true;
+                btnStop.classList.replace('bg-red-600', 'bg-slate-800');
+                btnStop.classList.replace('text-white', 'text-slate-500');
+                btnStop.classList.remove('hover:bg-red-500');
+                
+                btnStart.disabled = false;
+                btnStart.classList.replace('bg-slate-800', 'bg-red-600');
+                btnStart.classList.replace('text-slate-500', 'hover:bg-red-500');
+                
+                document.getElementById('record-status').innerText = "Processing audio...";
+            }
+        }
+
+        async function processAudio(blob) {
+            const apiKey = localStorage.getItem('openai_key');
+            if (!apiKey) {
+                alert("OpenAI API Key is missing. Please provide it on the login screen.");
+                document.getElementById('record-status').innerText = "Failed: Missing API Key";
+                return;
+            }
+
+            try {
+                // 1. Transcribe with Whisper
+                document.getElementById('record-status').innerText = "Transcribing with Whisper...";
+                const formData = new FormData();
+                formData.append('file', new File([blob], 'audio.webm', { type: blob.type }));
+                formData.append('model', 'whisper-1');
+
+                const transcribeRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${apiKey}` },
+                    body: formData
+                });
+
+                if (!transcribeRes.ok) throw new Error(await transcribeRes.text());
+                const transcribeData = await transcribeRes.json();
+                const transcript = transcribeData.text;
+
+                // 2. Format with GPT
+                document.getElementById('record-status').innerText = "Formatting to Markdown...";
+                const prompt = `You are a blog writing assistant. Convert the following transcript into a well-structured, professional Markdown blog post. Use appropriate headings, lists, and formatting. Output ONLY the raw markdown, no intro/outro, do not output backticks wrapping the markdown block. Start with an # H1 heading for the title.\n\nTranscript: ${transcript}`;
+                
+                const chatRes = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [{ role: 'user', content: prompt }],
+                        temperature: 0.7
+                    })
+                });
+
+                if (!chatRes.ok) throw new Error(await chatRes.text());
+                const chatData = await chatRes.json();
+                let markdown = chatData.choices[0].message.content;
+                
+                // Strip backticks if the model added them anyway
+                markdown = markdown.replace(/^```markdown\n/g, '').replace(/```$/g, '');
+
+                // 3. Update UI
+                const currentContent = document.getElementById('input-post-content').value;
+                document.getElementById('input-post-content').value = (currentContent ? currentContent + '\n\n' : '') + markdown;
+                
+                if (!document.getElementById('input-post-filename').value) {
+                    const date = new Date().toISOString().split('T')[0];
+                    document.getElementById('input-post-filename').value = `${date}-voice-post.md`;
+                }
+
+                document.getElementById('record-status').innerText = "Transcription complete! Ready to save.";
+            } catch (err) {
+                alert("Error processing audio: " + err.message);
+                document.getElementById('record-status').innerText = "Error occurred.";
+            }
+        }
+
+        // ============================
+        // SITE EDITOR LOGIC
+        // ============================
+        function renderSiteForm() {
+            document.getElementById('input-name').value = siteData.consultant_name || '';
+            document.getElementById('input-email').value = siteData.contact_email || '';
+            document.getElementById('input-tagline').value = siteData.tagline || '';
+            document.getElementById('input-bio').value = siteData.bio || '';
+            const container = document.getElementById('services-container');
+            container.innerHTML = '';
+            if(siteData.services) {
+                siteData.services.forEach((srv, index) => {
+                    injectServiceHTML(srv.id || `service-${Date.now()}-${index}`, srv.name, srv.description);
+                });
+            }
+        }
+
+        function injectServiceHTML(id, name, desc) {
+            const safeName = escapeHTML(name);
+            const safeDesc = escapeHTML(desc);
+            const container = document.getElementById('services-container');
+            const div = document.createElement('div');
+            div.className = "bg-slate-950 p-5 rounded-xl border border-slate-800 relative service-item";
+            div.innerHTML = `
+                <input type="hidden" class="srv-id" value="${id}">
+                <button onclick="this.parentElement.remove()" class="absolute top-4 right-4 text-slate-500 hover:text-red-400">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <div class="mb-3">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Service Name</label>
+                    <input type="text" class="srv-name w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500" value="${safeName}">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Description</label>
+                    <textarea rows="3" class="srv-desc w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500">${safeDesc}</textarea>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function addService() { injectServiceHTML(`service-${Date.now()}`, '', ''); }
+
+        async function saveSiteChanges() {
+            const btn = document.getElementById('save-site-btn');
+            btn.innerText = `Saving...`; btn.disabled = true;
+
+            siteData.consultant_name = document.getElementById('input-name').value;
+            siteData.contact_email = document.getElementById('input-email').value;
+            siteData.tagline = document.getElementById('input-tagline').value;
+            siteData.bio = document.getElementById('input-bio').value;
+
+            const newServices = [];
+            document.querySelectorAll('.service-item').forEach(item => {
+                newServices.push({
+                    id: item.querySelector('.srv-id').value,
+                    name: item.querySelector('.srv-name').value,
+                    description: item.querySelector('.srv-desc').value
+                });
+            });
+            siteData.services = newServices;
+
+            const body = {
+                message: "docs(site): update content via admin dashboard",
+                content: b64EncodeUnicode(JSON.stringify(siteData, null, 2)),
+                sha: siteDataSha,
+                branch: "main"
+            };
+            
+            try {
+                const res = await githubAPI('contents/content/data.json', 'PUT', body);
+                siteDataSha = res.content.sha;
+                alert('Site saved successfully! GitHub Actions is rebuilding your site.');
+            } catch (err) { alert("Error: " + err.message); } 
+            finally { btn.innerText = `Save Changes`; btn.disabled = false; }
+        }
+
+        // ============================
+        // BLOG MANAGER LOGIC
+        // ============================
+        async function fetchBlogPosts() {
+            const listDiv = document.getElementById('blog-list');
+            listDiv.innerHTML = '<div class="text-slate-500">Loading posts...</div>';
+            try {
+                const data = await githubAPI('contents/content/posts');
+                listDiv.innerHTML = '';
+                if (data.length === 0) listDiv.innerHTML = '<div class="text-slate-500">No posts found.</div>';
+                
+                data.filter(f => f.name.endsWith('.md')).forEach(file => {
+                    const el = document.createElement('div');
+                    el.className = "bg-slate-950 p-6 rounded-xl border border-slate-800 flex justify-between items-center hover:border-indigo-500/30 cursor-pointer transition";
+                    el.onclick = () => loadPost(file.name, file.sha);
+                    el.innerHTML = `
+                        <div>
+                            <div class="text-white font-medium mb-1">${escapeHTML(file.name)}</div>
+                            <div class="text-slate-500 text-sm">Markdown File</div>
+                        </div>
+                        <div class="text-indigo-400 text-sm font-medium">Edit &rarr;</div>
+                    `;
+                    listDiv.appendChild(el);
+                });
+            } catch (err) {
+                if(err.message.includes('404')) {
+                    listDiv.innerHTML = '<div class="text-slate-500">No posts folder found. Click New Post to start!</div>';
+                } else {
+                    listDiv.innerHTML = `<div class="text-red-400">Error loading posts: ${escapeHTML(err.message)}</div>`;
+                }
+            }
+        }
+
+        function openPostEditor(filename = '', content = '', sha = '') {
+            document.getElementById('view-blog').classList.add('hidden');
+            document.getElementById('view-post-editor').classList.remove('hidden');
+            
+            document.getElementById('post-editor-title').innerText = filename ? "Edit Post" : "Create New Post";
+            document.getElementById('input-post-filename').value = filename;
+            document.getElementById('input-post-filename').disabled = !!filename; 
+            document.getElementById('input-post-content').value = content;
+            document.getElementById('input-post-sha').value = sha;
+            document.getElementById('record-status').innerText = "Ready";
+        }
+
+        async function loadPost(filename, sha) {
+            try {
+                const data = await githubAPI(`contents/content/posts/${filename}`);
+                const content = b64DecodeUnicode(data.content);
+                openPostEditor(filename, content, sha);
+            } catch (err) { alert('Error loading post: ' + err.message); }
+        }
+
+        async function savePost() {
+            const btn = document.getElementById('save-post-btn');
+            const filename = document.getElementById('input-post-filename').value.trim();
+            const content = document.getElementById('input-post-content').value;
+            const sha = document.getElementById('input-post-sha').value;
+
+            if (!filename.endsWith('.md')) { alert("Filename must end in .md"); return; }
+            if (!content) { alert("Content cannot be empty."); return; }
+
+            btn.innerText = `Saving...`; btn.disabled = true;
+
+            const body = {
+                message: `docs(blog): ${sha ? 'update' : 'create'} post ${filename}`,
+                content: b64EncodeUnicode(content),
+                branch: "main"
+            };
+            if (sha) body.sha = sha;
+
+            try {
+                const res = await githubAPI(`contents/content/posts/${filename}`, 'PUT', body);
+                document.getElementById('input-post-sha').value = res.content.sha;
+                alert('Post saved! GitHub Actions is rebuilding your site.');
+                switchTab('blog'); 
+            } catch (err) { alert("Error: " + err.message); } 
+            finally { btn.innerText = `Save Post`; btn.disabled = false; }
+        }
+    </script>
+</body>
+</html>
