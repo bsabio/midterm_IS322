@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth" style="font-size: {{ font_size }}">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,8 +29,59 @@
             }
         }
     </script>
+    <script>
+        // Inject Jinja variables into CSS to prevent IDE linter errors
+        document.documentElement.style.fontSize = '{{ font_size }}';
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="bg-bgA text-textDark antialiased min-h-screen border-none m-0 p-0 relative">
+
+    <!-- Google Login Overlay -->
+    <div id="google-login-overlay" style="display:flex;position:fixed;inset:0;z-index:9999;background:#eef1dd;align-items:center;justify-content:center;">
+        <div style="background:#fff;border:3px solid #000;padding:3rem 2.5rem;box-shadow:6px 6px 0 #2f3442;max-width:420px;width:90%;text-align:center;">
+            <h1 style="font-size:2rem;font-weight:900;margin-bottom:0.5rem;color:#1e2230;font-family:'Arial Black',sans-serif;">Welcome</h1>
+            <p style="color:#4a5268;font-weight:700;margin-bottom:2rem;font-family:'Segoe UI',sans-serif;">Sign in with Google to access this site.</p>
+            <div id="g_id_onload"
+                data-client_id="1006478187461-rufkdvo3lve7s8vubk0fgk3hve415bhn.apps.googleusercontent.com"
+                data-callback="handleGoogleLogin"
+                data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                data-type="standard"
+                data-size="large"
+                data-theme="outline"
+                data-text="sign_in_with"
+                data-shape="rectangular"
+                data-logo_alignment="left">
+            </div>
+            <p id="login-error" style="color:#e53e3e;font-weight:700;margin-top:1rem;display:none;">Sign-in failed. Please try again.</p>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_CLIENT_ID = '1006478187461-rufkdvo3lve7s8vubk0fgk3hve415bhn.apps.googleusercontent.com';
+
+        function handleGoogleLogin(response) {
+            if (response && response.credential) {
+                localStorage.setItem('google_token', response.credential);
+                localStorage.setItem('google_login_time', Date.now());
+                document.getElementById('google-login-overlay').style.display = 'none';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        // Check if already logged in (token valid for 24 hours)
+        (function() {
+            const token = localStorage.getItem('google_token');
+            const loginTime = parseInt(localStorage.getItem('google_login_time') || '0');
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            if (token && (Date.now() - loginTime) < twentyFourHours) {
+                document.getElementById('google-login-overlay').style.display = 'none';
+            }
+        })();
+    </script>
 
     <!-- Navigation Bar -->
     <nav class="bg-white border-b-[3px] border-black px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-swiss-sm sticky top-0 z-50">
