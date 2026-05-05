@@ -86,6 +86,20 @@
                         Save Changes
                     </button>
                 </div>
+                
+                <!-- AI Site Editor Panel -->
+                <div class="mb-8 p-6 bg-[#dce8f3] border-[3px] border-black shadow-swiss-sm">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
+                        <h3 class="text-lg font-black">AI Site Editor (Voice Commands)</h3>
+                        <span id="site-record-status" class="text-muted font-bold">Ready</span>
+                    </div>
+                    <p class="text-sm font-bold text-muted mb-4">Example: "Change my tagline to 'SEO Expert' and add a new service called 'Auditing'"</p>
+                    <div class="flex gap-4 items-center">
+                        <button id="btn-site-start-record" onclick="startSiteRecording()" class="bg-[#fcd34d] border-[3px] border-black text-black font-black px-4 py-2 shadow-swiss-sm hover:-translate-y-[1px] hover:-translate-x-[1px] transition-transform">Speak Commands</button>
+                        <button id="btn-site-stop-record" onclick="stopSiteRecording()" disabled class="bg-gray-300 border-[3px] border-black text-gray-500 font-black px-4 py-2 opacity-50 cursor-not-allowed">Stop & Process</button>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-6">
                         <h3 class="text-xl font-black border-b-[3px] border-black pb-2">Basic Info</h3>
@@ -348,6 +362,119 @@
             } catch (err) {
                 alert("Error: " + err.message);
                 document.getElementById('record-status').innerText = "Error occurred.";
+            }
+        }
+
+        // ============================
+        // AI SITE EDITOR (WHISPER -> JSON)
+        // ============================
+        let siteMediaRecorder;
+        let siteAudioChunks = [];
+
+        async function startSiteRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                siteMediaRecorder = new MediaRecorder(stream);
+                siteAudioChunks = [];
+                siteMediaRecorder.ondataavailable = e => { if (e.data.size > 0) siteAudioChunks.push(e.data); };
+                siteMediaRecorder.onstop = async () => {
+                    const blob = new Blob(siteAudioChunks, { type: 'audio/webm' });
+                    stream.getTracks().forEach(track => track.stop());
+                    await processSiteAudio(blob);
+                };
+                siteMediaRecorder.start();
+                
+                const btnStart = document.getElementById('btn-site-start-record');
+                const btnStop = document.getElementById('btn-site-stop-record');
+                
+                btnStart.disabled = true;
+                btnStart.className = "bg-gray-300 border-[3px] border-black text-gray-500 font-black px-4 py-2 opacity-50 cursor-not-allowed";
+                btnStop.disabled = false;
+                btnStop.className = "bg-red-600 border-[3px] border-black text-white font-black px-4 py-2 shadow-swiss-sm hover:-translate-y-[1px] hover:-translate-x-[1px] transition-transform";
+                document.getElementById('site-record-status').innerHTML = '<span class="text-red-600 animate-pulse font-black">● Listening...</span>';
+            } catch (err) { alert("Microphone error: " + err.message); }
+        }
+
+        function stopSiteRecording() {
+            if (siteMediaRecorder && siteMediaRecorder.state !== 'inactive') {
+                siteMediaRecorder.stop();
+                const btnStart = document.getElementById('btn-site-start-record');
+                const btnStop = document.getElementById('btn-site-stop-record');
+                btnStop.disabled = true;
+                btnStop.className = "bg-gray-300 border-[3px] border-black text-gray-500 font-black px-4 py-2 opacity-50 cursor-not-allowed";
+                btnStart.disabled = false;
+                btnStart.className = "bg-[#fcd34d] border-[3px] border-black text-black font-black px-4 py-2 shadow-swiss-sm hover:-translate-y-[1px] hover:-translate-x-[1px] transition-transform";
+                document.getElementById('site-record-status').innerText = "Processing commands...";
+            }
+        }
+
+        async function processSiteAudio(blob) {
+            const apiKey = localStorage.getItem('openai_key');
+            if (!apiKey) {
+                alert("OpenAI API Key missing.");
+                document.getElementById('site-record-status').innerText = "Failed: Missing API Key";
+                return;
+            }
+            try {
+                document.getElementById('site-record-status').innerText = "Transcribing commands...";
+                const formData = new FormData();
+                formData.append('file', new File([blob], 'audio.webm', { type: blob.type }));
+                formData.append('model', 'whisper-1');
+
+                const transcribeRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${apiKey}` },
+                    body: formData
+                });
+                if (!transcribeRes.ok) throw new Error(await transcribeRes.text());
+                const transcript = (await transcribeRes.json()).text;
+
+                document.getElementById('site-record-status').innerText = "AI updating Site Configuration...";
+                
+                const currentServices = [];
+                document.querySelectorAll('.service-item').forEach(item => {
+                    currentServices.push({
+                        id: item.querySelector('.srv-id').value,
+                        name: item.querySelector('.srv-name').value,
+                        description: item.querySelector('.srv-desc').value
+                    });
+                });
+                
+                const currentState = {
+                    consultant_name: document.getElementById('input-name').value,
+                    contact_email: document.getElementById('input-email').value,
+                    tagline: document.getElementById('input-tagline').value,
+                    bio: document.getElementById('input-bio').value,
+                    services: currentServices
+                };
+
+                const prompt = `You are an AI system administrator. The user gave a voice command to update their website configuration. 
+Current Configuration JSON:
+${JSON.stringify(currentState)}
+
+User Voice Command:
+"${transcript}"
+
+Apply the user's instructions to the JSON. If they ask to add a service, append it to the services array. Return ONLY the fully updated JSON object. Do not include markdown code blocks, backticks, or any other text.`;
+
+                const chatRes = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'user', content: prompt }] })
+                });
+
+                if (!chatRes.ok) throw new Error(await chatRes.text());
+                let resultText = (await chatRes.json()).choices[0].message.content;
+                resultText = resultText.replace(/^```json\n/g, '').replace(/```$/g, '').trim();
+                
+                const newConfig = JSON.parse(resultText);
+                siteData = { ...siteData, ...newConfig };
+                renderSiteForm();
+                
+                document.getElementById('site-record-status').innerText = "Form updated! Review and click Save Changes.";
+            } catch (err) {
+                alert("Error: " + err.message);
+                document.getElementById('site-record-status').innerText = "Error occurred.";
             }
         }
 
