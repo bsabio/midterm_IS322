@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eleanor Vance, Ph.D. - AI Strategy Consultant</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: '#0B0F19', // Deep space dark
+                        darker: '#06090E',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-slate-300 antialiased selection:bg-indigo-500/30">
+
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden pt-32 pb-24 lg:pt-48 lg:pb-32">
+        <!-- Ambient background glows -->
+        <div class="absolute inset-0 z-0 pointer-events-none">
+            <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-indigo-900/20 via-purple-900/10 to-transparent blur-[100px] rounded-full"></div>
+        </div>
+        
+        <div class="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
+            <!-- Consultant Name -->
+            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-bold text-white tracking-tight mb-8">
+                Eleanor Vance, Ph.D.
+            </h1>
+            
+            <!-- Tagline with gradient -->
+            <p class="text-xl sm:text-2xl lg:text-3xl font-light text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+                Empowering Businesses through Strategic Artificial Intelligence
+            </p>
+            
+            <!-- Bio -->
+            <p class="text-lg text-slate-400 max-w-3xl mx-auto leading-loose">
+                With over a decade of experience bridging the gap between cutting-edge AI research and practical enterprise applications, Eleanor Vance helps forward-thinking organizations navigate the complexities of AI adoption. She specializes in developing tailored strategies that drive innovation, optimize operations, and create sustainable competitive advantages in an increasingly automated world.
+            </p>
+        </div>
+    </header>
+
+    <!-- Services Section -->
+    <section class="py-24 bg-darker border-y border-slate-800/60 relative">
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            <h2 class="text-3xl font-semibold text-white mb-16 text-center tracking-wide">Strategic Offerings</h2>
+            
+            <!-- Grid Layout for Services -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                
+                <!-- Jinja2 Loop for Service Cards -->
+                
+                <div class="group relative p-8 sm:p-10 rounded-3xl bg-slate-900/40 border border-slate-800/80 hover:border-indigo-500/30 hover:bg-slate-800/40 transition-all duration-500 hover:-translate-y-1 overflow-hidden backdrop-blur-sm">
+                    
+                    <!-- Card Hover Gradient Effect -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                    <div class="relative z-10">
+                        <!-- Icon Placeholder -->
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 border border-indigo-500/20 flex items-center justify-center mb-8 group-hover:from-indigo-500/20 group-hover:to-cyan-500/20 transition-colors duration-500">
+                            <svg class="w-7 h-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                            </svg>
+                        </div>
+                        
+                        <h3 class="text-2xl font-medium text-white mb-4 tracking-tight">AI Readiness Assessment</h3>
+                        <p class="text-slate-400 leading-relaxed">
+                            A comprehensive evaluation of your organization's current data infrastructure, technical capabilities, and business processes to determine your readiness for AI integration.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="group relative p-8 sm:p-10 rounded-3xl bg-slate-900/40 border border-slate-800/80 hover:border-indigo-500/30 hover:bg-slate-800/40 transition-all duration-500 hover:-translate-y-1 overflow-hidden backdrop-blur-sm">
+                    
+                    <!-- Card Hover Gradient Effect -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                    <div class="relative z-10">
+                        <!-- Icon Placeholder -->
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 border border-indigo-500/20 flex items-center justify-center mb-8 group-hover:from-indigo-500/20 group-hover:to-cyan-500/20 transition-colors duration-500">
+                            <svg class="w-7 h-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                            </svg>
+                        </div>
+                        
+                        <h3 class="text-2xl font-medium text-white mb-4 tracking-tight">Custom AI Strategy Development</h3>
+                        <p class="text-slate-400 leading-relaxed">
+                            Creation of a tailored, actionable roadmap for deploying AI solutions aligned with your core business objectives, ensuring maximum ROI and strategic alignment.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="group relative p-8 sm:p-10 rounded-3xl bg-slate-900/40 border border-slate-800/80 hover:border-indigo-500/30 hover:bg-slate-800/40 transition-all duration-500 hover:-translate-y-1 overflow-hidden backdrop-blur-sm">
+                    
+                    <!-- Card Hover Gradient Effect -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                    <div class="relative z-10">
+                        <!-- Icon Placeholder -->
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 border border-indigo-500/20 flex items-center justify-center mb-8 group-hover:from-indigo-500/20 group-hover:to-cyan-500/20 transition-colors duration-500">
+                            <svg class="w-7 h-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                            </svg>
+                        </div>
+                        
+                        <h3 class="text-2xl font-medium text-white mb-4 tracking-tight">Machine Learning Model Prototyping</h3>
+                        <p class="text-slate-400 leading-relaxed">
+                            Rapid development and validation of proof-of-concept ML models to demonstrate technical feasibility and business value before full-scale implementation.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="group relative p-8 sm:p-10 rounded-3xl bg-slate-900/40 border border-slate-800/80 hover:border-indigo-500/30 hover:bg-slate-800/40 transition-all duration-500 hover:-translate-y-1 overflow-hidden backdrop-blur-sm">
+                    
+                    <!-- Card Hover Gradient Effect -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                    <div class="relative z-10">
+                        <!-- Icon Placeholder -->
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 border border-indigo-500/20 flex items-center justify-center mb-8 group-hover:from-indigo-500/20 group-hover:to-cyan-500/20 transition-colors duration-500">
+                            <svg class="w-7 h-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                            </svg>
+                        </div>
+                        
+                        <h3 class="text-2xl font-medium text-white mb-4 tracking-tight">AI Ethics & Governance Consulting</h3>
+                        <p class="text-slate-400 leading-relaxed">
+                            Guidance on establishing robust frameworks for responsible AI deployment, focusing on mitigating bias, ensuring transparency, and maintaining regulatory compliance.
+                        </p>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer / Contact Section -->
+    <footer class="py-24 relative overflow-hidden">
+        <!-- Ambient background glows -->
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-t from-indigo-900/20 to-transparent blur-[80px] pointer-events-none"></div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-3xl lg:text-4xl font-semibold text-white mb-6">Ready to Transform Your Business?</h2>
+            <p class="text-lg text-slate-400 mb-12 max-w-2xl mx-auto">
+                Schedule a consultation to discuss how tailored AI strategies can drive innovation and optimize your operations.
+            </p>
+            
+            <!-- Mailto Contact Button -->
+            <a href="mailto:hello@eleanorvance-ai.com" class="inline-flex items-center px-10 py-5 rounded-full bg-white text-slate-900 font-semibold text-lg hover:bg-slate-200 hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]">
+                Contact Me
+                <svg class="ml-3 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </a>
+            
+            <div class="mt-24 text-sm text-slate-500">
+                &copy; <script>document.write(new Date().getFullYear())</script> Eleanor Vance, Ph.D.. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

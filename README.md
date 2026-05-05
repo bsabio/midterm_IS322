@@ -1,103 +1,37 @@
-# Agentic CLI Toolkit (Clean Architecture)
+# AI Consultant Landing Page
 
-CPU-friendly local CLI toolkit for AI agents, designed with strict separation of concerns using Robert C. Martin's Clean Architecture principles.
+Welcome to the AI Consultant Landing Page project! This is a fully customizable, modern, and dark-themed web presence designed specifically for AI strategy consultants. It dynamically generates a beautiful portfolio site from a simple data file. 
 
-## Goals
+The best part? This project is **$0 to host** and requires **no monthly subscriptions**! It runs entirely on free GitHub tools.
 
-1. Modular Agentic Search Tool to build a local library of resources.
-2. Autonomous Help System so other AI agents can onboard themselves.
-3. Strict separation between CLI interface and agent logic.
+## How to Set Up Your Own Site
 
-## Directory Structure
+Follow these steps to deploy your own version of this landing page.
 
-```text
-.
-├── .gitignore
-├── README.md
-├── src
-│   └── agentic_cli
-│       ├── __init__.py
-│       ├── application
-│       │   ├── __init__.py
-│       │   └── use_cases
-│       │       ├── __init__.py
-│       │       ├── autonomous_onboarding.py
-│       │       └── build_library.py
-│       ├── config
-│       │   ├── __init__.py
-│       │   └── settings.py
-│       ├── domain
-│       │   ├── __init__.py
-│       │   ├── entities
-│       │   │   ├── __init__.py
-│       │   │   └── resource.py
-│       │   └── repositories
-│       │       ├── __init__.py
-│       │       └── resource_repository.py
-│       ├── infrastructure
-│       │   ├── __init__.py
-│       │   ├── search
-│       │   │   ├── __init__.py
-│       │   │   └── local_indexer.py
-│       │   └── storage
-│       │       ├── __init__.py
-│       │       └── local_json_repository.py
-│       └── interfaces
-│           ├── __init__.py
-│           └── cli
-│               ├── __init__.py
-│               └── main.py
-└── tests
-	└── test_onboarding.py
-```
+### Step 1: Fork the Repository
+1. In the top-right corner of this page, click the **Fork** button.
+2. Create a copy of this repository under your personal GitHub account.
 
-## Quick Start
+### Step 2: Enable GitHub Actions Permissions
+Because this project automatically builds your site for you, GitHub Actions needs permission to save the built page back to your repository.
+1. In your forked repository, click the **Settings** tab.
+2. On the left sidebar, expand **Actions** and click **General**.
+3. Scroll down to the **Workflow permissions** section.
+4. Select the option for **Read and write permissions**.
+5. Click **Save**.
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-# create and populate .env manually
-python -m src.agentic_cli.interfaces.cli.main init-help
-python -m src.agentic_cli.interfaces.cli.main add --title "Clean Architecture" --source "https://blog.cleancoder.com"
-python -m src.agentic_cli.interfaces.cli.main list
-python -m src.agentic_cli.interfaces.cli.main search "architecture"
-```
+### Step 3: Configure GitHub Pages
+We use GitHub Pages to host your site for free!
+1. In your repository's **Settings**, click on **Pages** in the left sidebar.
+2. Under the **Build and deployment** section, ensure the **Source** is set to **Deploy from a branch**.
+3. In the **Branch** dropdown, select the **gh-pages** branch. *(Note: If you don't see `gh-pages` yet, complete Step 4 first to trigger the initial build!)*
+4. Click **Save**. 
 
-## Clean Architecture Mapping
+### Step 4: Update Your Content
+You don't need to touch any code to update your website! You can do it right from your browser.
+1. In your repository files, navigate to `content/data.json`.
+2. Click the **✏️ (Edit)** icon to modify the file directly in GitHub.
+3. Update your name, tagline, bio, contact email, and the services array to reflect your personal consulting brand.
+4. Click **Commit changes**.
 
-- Domain: Enterprise rules (`entities`, repository contracts)
-- Application: Use cases and orchestration (`use_cases`)
-- Infrastructure: Data persistence and indexing details
-- Interfaces: CLI adapters only (no business logic)
-
-## Performance Notes (Dell Latitude 7410)
-
-- JSON storage with append/update pattern (low overhead).
-- Token-based in-memory search index rebuilt on demand.
-- No heavy ML frameworks or GPU assumptions.
-- Configurable result limits and token cutoffs via `.env`.
-
-## Autonomous Orchestrator Toolkit
-
-This repository now includes a Clean Architecture CLI orchestration framework that uses local Ollama as the primary reasoning engine.
-
-Location:
-
-- `src/agent_orchestrator/`
-
-Architecture boundaries:
-
-- Core Logic: `src/agent_orchestrator/core/content_formatter.py`
-- Infrastructure (external I/O):
-	- `src/agent_orchestrator/infrastructure/ollama_reasoner.py`
-	- `src/agent_orchestrator/infrastructure/github_publisher.py`
-- Local context docs: `research/`
-- Self-onboarding help use case: `src/agent_orchestrator/application/use_cases/onboarding_help.py`
-
-Run examples:
-
-```bash
-python -m src.agent_orchestrator.interfaces.cli.main help-agent
-python -m src.agent_orchestrator.interfaces.cli.main research-add --title "design note" --content "glassmorphism and bauhaus constraints"
-python -m src.agent_orchestrator.interfaces.cli.main run --instruction "Draft a post about local AI workflows"
-```
+**That's it!** Every time you edit the `data.json` file, a GitHub Action will automatically run in the background, rebuild your HTML site using the new data, and publish it. Within a minute or two, your live website will reflect your latest changes.

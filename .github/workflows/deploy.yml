@@ -1,57 +1,36 @@
-name: Rebuild Site On New Posts
+name: Deploy to GitHub Pages
 
 on:
   push:
+    branches:
+      - main
     paths:
-      - "posts/**/*.md"
-  workflow_dispatch:
+      - 'content/data.json'
+
+permissions:
+  contents: write
 
 jobs:
-  detect-and-rebuild:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          fetch-depth: 0
-
-      - name: Detect newly added markdown files in posts
-        id: detect
-        run: |
-          set -e
-          BEFORE_SHA="${{ github.event.before }}"
-          if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            ADDED_COUNT=$(git ls-files 'posts/**/*.md' | wc -l)
-          else
-            ADDED_COUNT=$(git diff --name-status "$BEFORE_SHA" "${{ github.sha }}" | awk '$1 == "A" && $2 ~ /^posts\/.*\.md$/ {count++} END {print count+0}')
-          fi
-
-          echo "added_count=$ADDED_COUNT" >> "$GITHUB_OUTPUT"
-          if [ "$ADDED_COUNT" -gt 0 ]; then
-            echo "has_new_posts=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_new_posts=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Setup Node
-        if: steps.detect.outputs.has_new_posts == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+          python-version: '3.x'
 
       - name: Install dependencies
-        if: steps.detect.outputs.has_new_posts == 'true'
-        run: npm ci
+        run: pip install jinja2
 
       - name: Build site
-        if: steps.detect.outputs.has_new_posts == 'true'
-        run: npm run build
+        run: python build.py
 
-      - name: Deploy site
-        if: steps.detect.outputs.has_new_posts == 'true'
-        run: npm run deploy
-
-      - name: Skip summary
-        if: steps.detect.outputs.has_new_posts != 'true'
-        run: echo "No newly added .md files under posts/. Rebuild skipped."
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
