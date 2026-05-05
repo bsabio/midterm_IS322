@@ -18,11 +18,6 @@
       "id": "service-prototyping",
       "name": "Machine Learning Model Prototyping",
       "description": "Rapid development and validation of proof-of-concept ML models to demonstrate technical feasibility and business value before full-scale implementation."
-    },
-    {
-      "id": "service-ethics",
-      "name": "AI Ethics & Governance Consulting",
-      "description": "Guidance on establishing robust frameworks for responsible AI deployment, focusing on mitigating bias, ensuring transparency, and maintaining regulatory compliance."
     }
   ]
 }
