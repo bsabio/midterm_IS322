@@ -648,12 +648,28 @@ Return ONLY the fully updated JSON object. Do not include markdown code blocks, 
             const btn = document.getElementById('save-post-btn');
             const filename = document.getElementById('input-post-filename').value.trim();
             const content = document.getElementById('input-post-content').value;
-            const sha = document.getElementById('input-post-sha').value;
+            let sha = document.getElementById('input-post-sha').value;
 
             if (!filename.endsWith('.md')) { alert("Filename must end in .md"); return; }
             if (!content) { alert("Content cannot be empty."); return; }
 
             btn.innerText = `Saving...`; btn.disabled = true;
+
+            // Auto-fetch SHA if file already exists on GitHub (prevents 422 error)
+            if (!sha) {
+                try {
+                    const existing = await githubAPI(`contents/content/posts/${filename}`);
+                    sha = existing.sha;
+                    document.getElementById('input-post-sha').value = sha;
+                } catch (e) {
+                    // 404 = file doesn't exist yet, safe to create
+                    if (!e.message.includes('404') && !e.message.includes('Not Found')) {
+                        alert('Error checking file: ' + e.message);
+                        btn.innerText = 'Save Post'; btn.disabled = false;
+                        return;
+                    }
+                }
+            }
 
             const body = {
                 message: `docs(blog): ${sha ? 'update' : 'create'} post ${filename}`,
