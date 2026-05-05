@@ -6,7 +6,7 @@
   "services": [
     {
       "id": "service-readiness",
-      "name": "AI Readiness Assessment",
+      "name": "is322 midterm",
       "description": "A comprehensive evaluation of your organization's current data infrastructure, technical capabilities, and business processes to determine your readiness for AI integration."
     },
     {
