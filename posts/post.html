@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" style="font-size: 16px">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post - Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Arial Black"', '"Segoe UI"', 'sans-serif'],
+                    },
+                    colors: {
+                        bgA: '#eef1dd',
+                        textDark: '#1e2230',
+                        muted: '#4a5268',
+                        accentPrimary: '#e87f5a',
+                        line: '#2f3442'
+                    },
+                    boxShadow: {
+                        'swiss': '6px 6px 0 #2f3442',
+                        'swiss-sm': '3px 3px 0 #2f3442'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .prose h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 1rem; color: #1e2230; line-height: 1.1; }
+        .prose h2 { font-size: 1.8rem; font-weight: 900; margin-top: 2rem; margin-bottom: 1rem; color: #1e2230; border-bottom: 3px solid #000; padding-bottom: 0.5rem; }
+        .prose p { margin-bottom: 1rem; line-height: 1.6; color: #1e2230; font-family: "Segoe UI", sans-serif; font-weight: 500; font-size: 1.1rem; }
+        .prose ul { list-style-type: square; padding-left: 2rem; margin-bottom: 1rem; color: #1e2230; font-family: "Segoe UI", sans-serif; font-weight: 500; font-size: 1.1rem;}
+        .prose li { margin-bottom: 0.5rem; }
+        .prose a { color: #e87f5a; text-decoration: none; border-bottom: 3px solid #000; font-weight: 900; }
+        .prose a:hover { background-color: #dce8f3; }
+        .prose strong { color: #1e2230; font-weight: 900; }
+        .prose blockquote { border-left: 4px solid #e87f5a; padding-left: 1rem; color: #4a5268; font-style: italic; margin: 1.5rem 0; font-family: "Segoe UI", sans-serif; }
+    </style>
+</head>
+<body class="bg-bgA text-textDark antialiased min-h-screen">
+
+    <main class="max-w-[1020px] mx-auto p-6 md:p-8">
+        
+        <div class="mb-6">
+            <a href="../index.html" class="inline-block bg-white border-[3px] border-black text-black font-black px-4 py-2 shadow-swiss-sm hover:-translate-y-[1px] hover:-translate-x-[1px] transition-transform">
+                &larr; Back to Dashboard
+            </a>
+        </div>
+
+        <article class="bg-white border-[3px] border-black p-8 md:p-12 shadow-swiss prose max-w-none">
+            <p>Hello, welcome to my midterm project. The first one didn't work that well, but with spec-driven development, I was able to get it working. Spec-driven development is the future of software development.</p>
+        </article>
+
+    </main>
+
+</body>
+</html>
